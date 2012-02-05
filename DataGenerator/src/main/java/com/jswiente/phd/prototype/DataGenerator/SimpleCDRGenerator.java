@@ -1,15 +1,10 @@
 package com.jswiente.phd.prototype.DataGenerator;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
-import org.joda.time.MutableDateTime;
 
-import com.jswiente.phd.prototype.DataGenerator.data.Record;
-import com.jswiente.phd.prototype.DataGenerator.data.SimpleCDR;
-import com.jswiente.phd.prototype.DataGenerator.util.DataUtils;
+import com.jswiente.phd.prototype.domain.Record;
+import com.jswiente.phd.prototype.domain.SimpleCDR;
+import com.jswiente.phd.prototype.utils.DataUtils;
 
 public class SimpleCDRGenerator implements Generator {
 	
@@ -28,14 +23,14 @@ public class SimpleCDRGenerator implements Generator {
 	public Record generate(Long id) {
 		
 		SimpleCDR cdr = new SimpleCDR();
-		cdr.recordNo = id;
-		cdr.customerNo = DataUtils.getRandomLong(9999999999L);
-		cdr.callingParty = "+491703097135";
-		cdr.calledParty = "+4061747582";
-		cdr.callType = "PHONE";
-		cdr.startDate = DataUtils.getRandomDate(start.toDate(), end.toDate());
-		cdr.endDate = DataUtils.getRandomDate(start.toDate(), end.toDate());
-		cdr.sequenceNo = 1L;
+		cdr.setRecordNo(id);
+		cdr.setCustomerNo(DataUtils.getRandomLong(9999999999L));
+		cdr.setCallingParty("+491703097135");
+		cdr.setCalledParty("+4061747582");
+		cdr.setCallType("PHONE");
+		cdr.setStartDate(DataUtils.getRandomDate(start.toDate(), end.toDate()));
+		cdr.setEndDate(DataUtils.getRandomDate(start.toDate(), end.toDate()));
+		cdr.setSequenceNo(1L);
 		
 		return cdr;
 	}

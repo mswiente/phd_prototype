@@ -1,6 +1,6 @@
 package com.jswiente.phd.prototype.DataGenerator;
 
-import com.jswiente.phd.prototype.DataGenerator.data.Record;
+import com.jswiente.phd.prototype.domain.Record;
 
 public interface Generator {
 	

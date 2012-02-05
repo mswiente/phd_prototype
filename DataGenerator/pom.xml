@@ -19,5 +19,28 @@
   		<type>jar</type>
   		<scope>compile</scope>
   	</dependency>
+  	<dependency>
+  		<groupId>com.jswiente.phd.prototype</groupId>
+  		<artifactId>FunctionalCore</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  		<scope>compile</scope>
+  	</dependency>
   </dependencies>
+  
+  <build>
+  	<plugins>
+  		<plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>exec-maven-plugin</artifactId>
+			<version>1.1</version>
+			<configuration>
+				<mainClass>com.jswiente.phd.prototype.DataGenerator.DataGenerator</mainClass>
+				<!--<arguments>
+					<argument>fileName data</argument>
+					<argument>fileNo 1000</argument>
+				</arguments>-->
+			</configuration>
+		</plugin>
+  	</plugins>
+  </build>
 </project>

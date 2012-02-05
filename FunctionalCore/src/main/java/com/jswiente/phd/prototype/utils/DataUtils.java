@@ -1,4 +1,4 @@
-package com.jswiente.phd.prototype.DataGenerator.util;
+package com.jswiente.phd.prototype.utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -10,10 +10,29 @@
 	<batch:job id="job1">
 		<batch:step id="step1"  >			
 			<batch:tasklet transaction-manager="transactionManager" start-limit="100" >
-				<batch:chunk reader="reader" writer="writer" commit-interval="1" />
+				<batch:chunk reader="cdrItemReader" writer="writer" commit-interval="1" />
 			</batch:tasklet>
 		</batch:step>
-	</batch:job> 
+	</batch:job>
 	
+	<bean id="cdrItemReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<!-- <property name="resource" value="#{jobParameters[inputFile]}" /> -->
+		<property name="resource" value="file:C:/projects/phd/dev/workspace/Data/input/data_0000000001.cdr" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<property name="lineTokenizer" ref="simpleCdrLineTokenizer" />
+				<property name="fieldSetMapper" ref="simpleCdrFieldSetMapper"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="simpleCdrLineTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+		<property name="names" value="recordNo,sequenceNo,customerNo,callingParty,calledParty,startDate,endDate,callType" />
+		<property name="columns" value="1-15,16-21,22-31,32-51,52-71,72-92,93-113,114-118" />
+	</bean>
+	
+	<bean id="simpleCdrFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+		<property name="targetType" value="com.jswiente.phd.prototype.domain.SimpleCDR" />
+	</bean>
 
 </beans>
