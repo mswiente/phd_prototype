@@ -10,7 +10,7 @@
 	<batch:job id="job1">
 		<batch:step id="step1"  >			
 			<batch:tasklet transaction-manager="transactionManager" start-limit="100" >
-				<batch:chunk reader="cdrItemReader" writer="writer" commit-interval="1" />
+				<batch:chunk reader="cdrItemReader" writer="writer" commit-interval="10" />
 			</batch:tasklet>
 		</batch:step>
 	</batch:job>
@@ -31,8 +31,6 @@
 		<property name="columns" value="1-15,16-21,22-31,32-51,52-71,72-92,93-113,114-118" />
 	</bean>
 	
-	<bean id="simpleCdrFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
-		<property name="targetType" value="com.jswiente.phd.prototype.domain.SimpleCDR" />
-	</bean>
+	<bean id="simpleCdrFieldSetMapper" class="com.jswiente.phd.SimpleCdrFieldSetMapper" />
 
 </beans>
