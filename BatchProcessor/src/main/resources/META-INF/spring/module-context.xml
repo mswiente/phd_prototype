@@ -10,7 +10,7 @@
 	<batch:job id="job1">
 		<batch:step id="step1"  >			
 			<batch:tasklet transaction-manager="transactionManager" start-limit="100" >
-				<batch:chunk reader="cdrItemReader" writer="writer" commit-interval="10" />
+				<batch:chunk reader="cdrItemReader" writer="writer" commit-interval="1" />
 			</batch:tasklet>
 		</batch:step>
 	</batch:job>

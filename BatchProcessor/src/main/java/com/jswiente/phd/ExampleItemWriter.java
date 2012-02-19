@@ -20,6 +20,7 @@ public class ExampleItemWriter implements ItemWriter<Object> {
 	 * @see ItemWriter#write(Object)
 	 */
 	public void write(List<? extends Object> data) throws Exception {
+		log.info("data size: " + data.size());
 		log.info(data);
 	}
 
