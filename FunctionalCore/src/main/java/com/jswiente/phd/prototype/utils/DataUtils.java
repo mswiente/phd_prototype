@@ -2,7 +2,9 @@ package com.jswiente.phd.prototype.utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import org.joda.time.DateMidnight;
@@ -46,6 +48,17 @@ public class DataUtils {
 	}
 	
 	/**
+	 * Calculates the next bill date
+	 * @param lastDate
+	 * @return
+	 */
+	public static Date getNextBillDate(Date lastDate) {
+		MutableDateTime nextDate = new MutableDateTime(lastDate);
+		nextDate.addDays(30);
+		return nextDate.toDateTime().toDateMidnight().toDate();
+	}
+	
+	/**
 	 * Formats the given date as a string
 	 * @param date
 	 */
@@ -61,5 +74,28 @@ public class DataUtils {
 	public static long getRandomLong(long maxNumber) {
 		Random r = new Random();
 		return (long)(r.nextDouble() * maxNumber);
+	}
+	
+	public static int getRandomInteger(int maxInt) {
+		return new Random().nextInt(maxInt);
+	}
+	
+	/**
+	 * Returns a random element from given list
+	 * @param <T>
+	 * @param list
+	 * @return
+	 */
+	public static <T> T getRandomElement(List<T> list) {
+		return list.get(new Random().nextInt(list.size()));
+	}
+	
+	public static <T> List<T> getRandomElements(List<T> list, int count) {
+		
+		List<T> result = new ArrayList<T>();
+		for (int i = 0; i < count; i++) {
+			result.add(getRandomElement(list));
+		}
+		return result;
 	}
 }
