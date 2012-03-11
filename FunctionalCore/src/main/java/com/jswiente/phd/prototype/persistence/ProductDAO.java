@@ -7,10 +7,12 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jswiente.phd.prototype.domain.Product;
 
 @Repository
+@Transactional
 public class ProductDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProductDAO.class);
@@ -68,7 +70,7 @@ public class ProductDAO {
 		logger.debug("getting all Products");
 		try {
 			List<Product> products = entityManager.createQuery(
-					"select product from Product as product", Product.class)
+					"select product from Product as product order by product.productId", Product.class)
 					.getResultList();
 			logger.debug("get successful");
 			return products;

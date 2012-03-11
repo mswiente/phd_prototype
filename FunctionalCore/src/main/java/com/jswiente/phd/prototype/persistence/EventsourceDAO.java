@@ -5,10 +5,12 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jswiente.phd.prototype.domain.Eventsource;
 
 @Repository
+@Transactional
 public class EventsourceDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventsourceDAO.class);

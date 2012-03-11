@@ -7,10 +7,12 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jswiente.phd.prototype.domain.Tariff;
 
 @Repository
+@Transactional
 public class TariffDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(TariffDAO.class);
@@ -68,7 +70,7 @@ public class TariffDAO {
 		logger.debug("Getting all Tariffs");
 		try {
 			List<Tariff> tariffs = entityManager.createQuery(
-					"select tariff from Tariff as tariff", Tariff.class)
+					"select tariff from Tariff as tariff order by tariff.tarifId", Tariff.class)
 					.getResultList();
 			logger.debug("get successful");
 			return tariffs;
