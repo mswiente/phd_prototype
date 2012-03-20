@@ -1,5 +1,9 @@
 package com.jswiente.phd.prototype.core;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +14,7 @@ import com.jswiente.phd.prototype.domain.Customerproduct;
 import com.jswiente.phd.prototype.domain.Customerproducttariff;
 import com.jswiente.phd.prototype.domain.Eventsource;
 import com.jswiente.phd.prototype.domain.SimpleCDR;
+import com.jswiente.phd.prototype.domain.Tariff;
 import com.jswiente.phd.prototype.persistence.AccountDAO;
 import com.jswiente.phd.prototype.persistence.EventsourceDAO;
 
@@ -41,20 +46,41 @@ public class RatingProcessor implements DataProcessor<SimpleCDR, Costedevent> {
 			logger.error("Customerproduct not found");
 		}
 		
-		//setting Account
 		Account account = accountDAO.getAccount(customerProduct.getAccountNum());
 		if (account == null) {
 			logger.error("Account not found");
 		}
 		output.setAccount(account);
 		
-		//TODO get CustomerProductTariff
+		Customerproducttariff customerProductTariff = getValidCustomerProductTariff(customerProduct);
+		if (customerProductTariff == null) {
+			logger.error("no valid CustomerProductTariff found");
+		}
 		
-		//TODO get Tariff
+		Tariff tariff = customerProductTariff.getTariff();
+		BigDecimal eventPrice = calculatePrice(callDetailRecord, tariff);
 		
-		//TODO calculate price
+		output.setCharge(eventPrice);
 		
 		return output;
+	}
+	
+	private Customerproducttariff getValidCustomerProductTariff(Customerproduct customerProduct) {
+		Set<Customerproducttariff> customerProductTariffs = customerProduct.getCustomerproducttariffs();
+		Date now = new Date();
+		for (Customerproducttariff customerProductTariff : customerProductTariffs) {
+			Date startDate = customerProductTariff.getStartDate();
+			Date endDate = customerProductTariff.getEndDate();
+			if (startDate.getTime() <= now.getTime() && now.getTime() <= endDate.getTime()) {
+				return customerProductTariff;
+			}
+		}
+		return null;
+	}
+	
+	private BigDecimal calculatePrice(SimpleCDR callDetailRecord, Tariff tariff) {
+		//TODO add implementation...
+		return new BigDecimal(10);
 	}
 
 }
