@@ -1,21 +1,27 @@
 package com.jswiente.phd.prototype.domain;
 
-import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.jswiente.phd.prototype.utils.DataUtils;
 
-public class SimpleCDR implements Record {
+public class SimpleCDR extends RawUsageEvent {
 	
-	private Long recordNo;
-	private long sequenceNo;
-	private long customerNo;
-	private String callingParty;
-	private String calledParty;
-	private Date startDate;
-	private Date endDate;
-	private String callType;
+	private boolean skip;
+	private SkipReason skipReason;
+	
+	public SimpleCDR() {
+		
+	}
+	
+	public SimpleCDR(RawUsageEvent usageEvent) {
+		this.recordId = usageEvent.getRecordId();
+		this.sequenceNum = usageEvent.getSequenceNum();
+		this.eventSource = usageEvent.getEventSource();
+		this.callingParty = usageEvent.getCallingParty();
+		this.calledParty = usageEvent.getCalledParty();
+		this.startDate = usageEvent.getStartDate();
+		this.endDate = usageEvent.getEndDate();
+		this.eventType = usageEvent.getEventType();
+		this.flatEvent = usageEvent.isFlatEvent();
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.jswiente.phd.DataGenerator.data.Record#toString()
@@ -24,79 +30,31 @@ public class SimpleCDR implements Record {
 	public String toString() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder
-			.append(String.format("%015d", recordNo))
-			.append(String.format("%06d", sequenceNo))
-			.append(String.format("%010d", customerNo))
-			.append(StringUtils.leftPad(callingParty, 20, ' '))
-			.append(StringUtils.leftPad(calledParty, 20, ' '))
-			.append(DataUtils.formatDate(startDate))
-			.append(DataUtils.formatDate(endDate))
-			.append(callType);
+			.append(String.format("%015d", recordId)).append(";")
+			.append(String.format("%06d", sequenceNum)).append(";")
+			.append(eventSource).append(";")
+			.append(callingParty).append(";")
+			.append(calledParty).append(";")
+			.append(DataUtils.formatDate(startDate)).append(";")
+			.append(DataUtils.formatDate(endDate)).append(";")
+			.append(eventType);
 
 		return stringBuilder.toString();
 	}
 
-	public Long getRecordNo() {
-		return recordNo;
+	public boolean isSkip() {
+		return skip;
+	}
+	
+	public void setSkip(boolean skip) {
+		this.skip = skip;
+	}
+	
+	public SkipReason getSkipReason() {
+		return skipReason;
 	}
 
-	public void setRecordNo(Long recordNo) {
-		this.recordNo = recordNo;
-	}
-
-	public long getSequenceNo() {
-		return sequenceNo;
-	}
-
-	public void setSequenceNo(long sequenceNo) {
-		this.sequenceNo = sequenceNo;
-	}
-
-	public long getCustomerNo() {
-		return customerNo;
-	}
-
-	public void setCustomerNo(long customerNo) {
-		this.customerNo = customerNo;
-	}
-
-	public String getCallingParty() {
-		return callingParty;
-	}
-
-	public void setCallingParty(String callingParty) {
-		this.callingParty = callingParty;
-	}
-
-	public String getCalledParty() {
-		return calledParty;
-	}
-
-	public void setCalledParty(String calledParty) {
-		this.calledParty = calledParty;
-	}
-
-	public Date getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-
-	public Date getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
-
-	public String getCallType() {
-		return callType;
-	}
-
-	public void setCallType(String callType) {
-		this.callType = callType;
+	public void setSkipReason(SkipReason skipReason) {
+		this.skipReason = skipReason;
 	}
 }

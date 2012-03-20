@@ -71,4 +71,19 @@ public class AccountDAO {
 			throw re;
 		}
 	}
+	
+	public Account getAccount(Long accountNum) {
+		logger.debug("getting Account with accountNum: " + accountNum);
+		try {
+			Account account = entityManager.createQuery(
+					"select account from Account as account where account.accountNum = ?1", Account.class)
+					.setParameter(1, accountNum)
+					.getSingleResult();
+			
+			return account;
+		} catch (RuntimeException re) {
+			logger.error("get failed", re);
+			throw re;
+		}
+	}
 }

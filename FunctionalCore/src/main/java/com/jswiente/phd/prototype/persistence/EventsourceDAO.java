@@ -1,5 +1,7 @@
 package com.jswiente.phd.prototype.persistence;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
@@ -7,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jswiente.phd.prototype.domain.EventType;
 import com.jswiente.phd.prototype.domain.Eventsource;
+import com.jswiente.phd.prototype.domain.Product;
 
 @Repository
 @Transactional
@@ -58,6 +62,36 @@ public class EventsourceDAO {
 			Eventsource instance = entityManager.find(Eventsource.class, id);
 			logger.debug("get successful");
 			return instance;
+		} catch (RuntimeException re) {
+			logger.error("get failed", re);
+			throw re;
+		}
+	}
+	
+	public List<Eventsource> getAllEventSources() {
+		logger.debug("getting all EventSources");
+		try {
+			List<Eventsource> eventSources = entityManager.createQuery(
+					"select eventsource from Eventsource as eventsource order by eventsource.eventSourceId", Eventsource.class)
+					.getResultList();
+			logger.debug("get successful");
+			return eventSources;
+		} catch (RuntimeException re) {
+			logger.error("get failed", re);
+			throw re;
+		}
+	}
+	
+	public Eventsource getEventSource(String eventSource, EventType eventType) {
+		logger.debug("getting EventSource with eventSource: " + eventSource);
+		try {
+			Eventsource result = entityManager.createQuery(
+					"select eventSource from Eventsource as eventsource where eventsource.eventSource = ?1 and eventsource.eventType = ?2", Eventsource.class)
+					.setParameter(1, eventSource)
+					.setParameter(2, eventType.getValue())
+					.getSingleResult();
+			return result;
+			
 		} catch (RuntimeException re) {
 			logger.error("get failed", re);
 			throw re;

@@ -9,6 +9,8 @@
 		<class>com.jswiente.phd.prototype.domain.Eventsource</class>
 		<class>com.jswiente.phd.prototype.domain.Product</class>
 		<class>com.jswiente.phd.prototype.domain.Tariff</class>
+		<class>com.jswiente.phd.prototype.domain.Calldetail</class>
+		<class>com.jswiente.phd.prototype.domain.Skippedevent</class>
 		<properties>
 			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/billdb"/>
 			<property name="javax.persistence.jdbc.user" value="billing"/>

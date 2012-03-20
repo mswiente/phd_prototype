@@ -5,6 +5,7 @@ public enum EventType {
 	VOICE (1);
 	
 	private final Integer value;
+	
 	private EventType(Integer value) {
 		this.value = value;
 	}

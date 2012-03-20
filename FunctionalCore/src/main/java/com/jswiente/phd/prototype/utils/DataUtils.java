@@ -80,6 +80,10 @@ public class DataUtils {
 		return new Random().nextInt(maxInt);
 	}
 	
+	public static boolean getRandomBoolean() {
+		return new Random().nextBoolean();
+	}
+	
 	/**
 	 * Returns a random element from given list
 	 * @param <T>
