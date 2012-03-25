@@ -13,11 +13,21 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
 import com.jswiente.phd.prototype.domain.Record;
 
+@Component
 public class DataGenerator {
 
+	private Generator generator;
+	
 	private static String outFile = null;
 	private static int noOfRecords = 0;
 	private static int partSize = 0;
@@ -28,14 +38,15 @@ public class DataGenerator {
 	private final static String HELP_OPTION = "help";
 
 	private final static String FILE_EXTENSION = "cdr";
-
-	private static void run() throws IOException {
+	
+	private static final Logger logger = LoggerFactory.getLogger(DataGenerator.class);
+	
+	private void run() throws IOException {
 
 		FileWriter out = null;
-		Generator generator = new SimpleCDRGenerator();
 
 		Date start = new Date();
-		System.out.println("Generating testdata...");
+		logger.info("Generating usage events...");
 
 		try {
 			int partition = 0;
@@ -62,8 +73,46 @@ public class DataGenerator {
 		}
 
 		long duration = new Date().getTime() - start.getTime();
-		System.out.println("finished processing of " + noOfRecords
+		logger.info("finished processing of " + noOfRecords
 				+ " records in " + duration / 60 + " sec.");
+	}
+	
+	private void init() {
+		generator.init();
+	}
+	
+	private void parseCmdLineArgs(String[] args) {
+		CommandLineParser parser = new GnuParser();
+		try {
+			// parse the command line arguments
+			Options options = getOptions();
+			CommandLine line = parser.parse(options, args);
+
+			if (line.hasOption(HELP_OPTION)) {
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp("DataGenerator", options);
+				System.exit(0);
+				return;
+			}
+
+			if (line.hasOption(FILENAME_OPTION)) {
+				outFile = line.getOptionValue(FILENAME_OPTION);
+			}
+
+			if (line.hasOption(RECORDNO_OPTION)) {
+				noOfRecords = Integer.valueOf(line
+						.getOptionValue(RECORDNO_OPTION));
+			}
+
+			if (line.hasOption(PARTSIZE_OPTION)) {
+				partSize = Integer
+						.valueOf(line.getOptionValue(PARTSIZE_OPTION));
+			} else {
+				partSize = noOfRecords;
+			}
+		} catch (ParseException exp) {
+			logger.error("Parsing failed.  Reason: " + exp.getMessage(), exp);
+		}
 	}
 
 	@SuppressWarnings("static-access")
@@ -88,41 +137,20 @@ public class DataGenerator {
 
 		return options;
 	}
+	
+	@Required
+	public void setGenerator(Generator generator) {
+		this.generator = generator;
+	}
 
 	public static void main(String[] args) throws IOException {
 
-		CommandLineParser parser = new GnuParser();
-		try {
-			// parse the command line arguments
-			Options options = getOptions();
-			CommandLine line = parser.parse(options, args);
-
-			if (line.hasOption(HELP_OPTION)) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("DataGenerator", options);
-				return;
-			}
-
-			if (line.hasOption(FILENAME_OPTION)) {
-				outFile = line.getOptionValue(FILENAME_OPTION);
-			}
-
-			if (line.hasOption(RECORDNO_OPTION)) {
-				noOfRecords = Integer.valueOf(line
-						.getOptionValue(RECORDNO_OPTION));
-			}
-
-			if (line.hasOption(PARTSIZE_OPTION)) {
-				partSize = Integer
-						.valueOf(line.getOptionValue(PARTSIZE_OPTION));
-			} else {
-				partSize = noOfRecords;
-			}
-
-			run();
-		} catch (ParseException exp) {
-			System.err.println("Parsing failed.  Reason: " + exp.getMessage());
-		}
-
+			ApplicationContext context =
+			    new ClassPathXmlApplicationContext(new String[] {"spring-config.xml", "spring-jpa.xml"});
+			
+			DataGenerator dataGenerator = context.getBean(DataGenerator.class);
+			dataGenerator.parseCmdLineArgs(args);
+			dataGenerator.init();
+			dataGenerator.run();
 	}
 }

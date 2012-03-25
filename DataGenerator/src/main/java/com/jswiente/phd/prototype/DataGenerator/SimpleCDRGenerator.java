@@ -2,6 +2,7 @@ package com.jswiente.phd.prototype.DataGenerator;
 
 import org.joda.time.DateMidnight;
 
+import com.jswiente.phd.prototype.domain.EventType;
 import com.jswiente.phd.prototype.domain.Record;
 import com.jswiente.phd.prototype.domain.SimpleCDR;
 import com.jswiente.phd.prototype.utils.DataUtils;
@@ -23,15 +24,20 @@ public class SimpleCDRGenerator implements Generator {
 	public Record generate(Long id) {
 		
 		SimpleCDR cdr = new SimpleCDR();
-		cdr.setRecordNo(id);
-		cdr.setCustomerNo(DataUtils.getRandomLong(9999999999L));
+		cdr.setRecordId(id);
 		cdr.setCallingParty("+491703097135");
 		cdr.setCalledParty("+4061747582");
-		cdr.setCallType("PHONE");
+		cdr.setEventType(EventType.VOICE);
 		cdr.setStartDate(DataUtils.getRandomDate(start.toDate(), end.toDate()));
 		cdr.setEndDate(DataUtils.getRandomDate(start.toDate(), end.toDate()));
-		cdr.setSequenceNo(1L);
+		cdr.setSequenceNum(1L);
 		
 		return cdr;
+	}
+	
+	@Override
+	public void init()
+	{
+		
 	}
 }
