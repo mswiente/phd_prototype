@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -11,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jswiente.phd.prototype.domain.EventType;
 import com.jswiente.phd.prototype.domain.Eventsource;
-import com.jswiente.phd.prototype.domain.Product;
 
 @Repository
 @Transactional
@@ -19,7 +20,7 @@ public class EventsourceDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(EventsourceDAO.class);
 
-	@PersistenceContext
+	@PersistenceContext(type=PersistenceContextType.EXTENDED)
 	private EntityManager entityManager;
 
 	public void persist(Eventsource transientInstance) {
@@ -86,9 +87,9 @@ public class EventsourceDAO {
 		logger.debug("getting EventSource with eventSource: " + eventSource);
 		try {
 			Eventsource result = entityManager.createQuery(
-					"select eventSource from Eventsource as eventsource where eventsource.eventSource = ?1 and eventsource.eventType = ?2", Eventsource.class)
+					"select eventsource from Eventsource as eventsource where eventsource.eventSource = ?1 and eventsource.eventType = ?2", Eventsource.class)
 					.setParameter(1, eventSource)
-					.setParameter(2, eventType.getValue())
+					.setParameter(2, eventType)
 					.getSingleResult();
 			return result;
 			

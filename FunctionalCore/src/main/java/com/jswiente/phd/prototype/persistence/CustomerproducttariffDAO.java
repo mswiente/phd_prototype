@@ -2,6 +2,8 @@ package com.jswiente.phd.prototype.persistence;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -15,7 +17,7 @@ public class CustomerproducttariffDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(CustomerproducttariffDAO.class);
 
-	@PersistenceContext
+	@PersistenceContext(type=PersistenceContextType.EXTENDED)
 	private EntityManager entityManager;
 
 	public void persist(Customerproducttariff transientInstance) {

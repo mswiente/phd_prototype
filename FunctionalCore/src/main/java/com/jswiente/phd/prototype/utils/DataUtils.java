@@ -10,6 +10,8 @@ import java.util.Random;
 import org.joda.time.DateMidnight;
 import org.joda.time.MutableDateTime;
 
+import com.jswiente.phd.prototype.domain.RawUsageEvent;
+
 public class DataUtils {
 	
 	private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
@@ -101,5 +103,9 @@ public class DataUtils {
 			result.add(getRandomElement(list));
 		}
 		return result;
+	}
+	
+	public static long getEventDuration(RawUsageEvent usageEvent) {
+		return usageEvent.getEndDate().getTime() - usageEvent.getStartDate().getTime();
 	}
 }

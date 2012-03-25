@@ -138,12 +138,12 @@ public class Costedevent implements Record, java.io.Serializable {
 	}
 
 	@Column(name = "EventType")
-	public Integer getEventType() {
-		return this.eventType;
+	public EventType getEventType() {
+		return EventType.parse(this.eventType);
 	}
 
-	public void setEventType(Integer eventType) {
-		this.eventType = eventType;
+	public void setEventType(EventType eventType) {
+		this.eventType = eventType.getValue();
 	}
 
 	@Column(name = "Charge", precision = 10)

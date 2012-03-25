@@ -5,6 +5,8 @@ package com.jswiente.phd.prototype.persistence;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +22,7 @@ public class CalldetailDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(CalldetailDAO.class);
 
-	@PersistenceContext
+	@PersistenceContext(type=PersistenceContextType.EXTENDED)
 	private EntityManager entityManager;
 
 	public void persist(Calldetail transientInstance) {
