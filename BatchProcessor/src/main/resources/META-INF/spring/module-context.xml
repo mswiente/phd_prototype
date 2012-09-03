@@ -5,32 +5,101 @@
 		http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<description>Example job to get you started. It provides a skeleton for a typical batch application.</description>
+	<description>Billing Batch Job</description>
  	
-	<batch:job id="job1">
-		<batch:step id="step1"  >			
-			<batch:tasklet transaction-manager="transactionManager" start-limit="100" >
-				<batch:chunk reader="cdrItemReader" writer="writer" commit-interval="1" />
+	<batch:job id="billingJob" incrementer="jobRunIdIncrementer">
+		<batch:step id="mediation" next="rating">			
+			<batch:tasklet transaction-manager="batchTransactionManager" start-limit="100" >
+				<batch:chunk reader="rawUsageEventReader" processor="rawUsageEventProcessor" writer="simpleCdrWriter" commit-interval="1000" />
+			</batch:tasklet>
+		</batch:step>
+ 		<batch:step id="rating"  >			
+			<batch:tasklet transaction-manager="batchTransactionManager" start-limit="100" >
+				<batch:chunk reader="simpleCdrItemReader" processor="simpleCdrProcessor" writer="costedEventWriter" commit-interval="1000" />
 			</batch:tasklet>
 		</batch:step>
 	</batch:job>
 	
-	<bean id="cdrItemReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
-		<!-- <property name="resource" value="#{jobParameters[inputFile]}" /> -->
-		<property name="resource" value="file:C:/projects/phd/dev/workspace/Data/input/data_0000000001.cdr" />
+	<!-- Mediation BatchProcessor -->
+	
+	<bean id="rawUsageEventReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<property name="resource" value="file:#{jobParameters[inputFile]}" />
+		<!-- <property name="resource" value="file:C:/projects/phd/dev/workspace/Data/input/data_0000000001.cdr" /> -->
 		<property name="lineMapper">
 			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
-				<property name="lineTokenizer" ref="simpleCdrLineTokenizer" />
+				<property name="lineTokenizer" ref="rawUsageEventTokenizer" />
+				<property name="fieldSetMapper" ref="rawUsageEventFieldSetMapper"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="rawUsageEventTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+		<property name="names" value="recordId,sequenceNum,eventSource,callingParty,calledParty,startDate,endDate,eventType,flatEvent" />
+		<property name="columns" value="1-15,16-21,22-41,42-61,62-81,82-105,106-129,130,131" />
+	</bean>
+	
+	<bean id="rawUsageEventFieldSetMapper" class="com.jswiente.phd.prototype.batch.mediation.RawUsageEventFieldSetMapper" />
+	
+	<bean id="rawUsageEventProcessor" class="com.jswiente.phd.prototype.batch.BatchDataProcessor">
+		<property name="dataProcessor">
+			<bean class="com.jswiente.phd.prototype.core.MediationProcessor"/>
+		</property>
+	</bean>
+	
+	<bean id="simpleCdrWriter" class="org.springframework.batch.item.file.FlatFileItemWriter" scope="step">
+		<property name="resource" value="file:#{jobParameters[outputFile]}" />
+		<!-- <property name="resource" value="file:C:/projects/phd/dev/workspace/Data/output/output.txt" /> -->
+		<property name="lineAggregator">
+        	<bean class="org.springframework.batch.item.file.transform.PassThroughLineAggregator"/>
+    	</property>
+	</bean>
+	
+	<!-- Rating Batch Processor -->
+	
+	<bean id="simpleCdrItemReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<property name="resource" value="file:#{jobParameters[outputFile]}" />
+		<!-- <property name="resource" value="file:C:/projects/phd/dev/workspace/Data/output/output.txt" /> -->
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<property name="lineTokenizer" ref="simpleCdrTokenizer"/>
 				<property name="fieldSetMapper" ref="simpleCdrFieldSetMapper"/>
 			</bean>
 		</property>
 	</bean>
 	
-	<bean id="simpleCdrLineTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+	<bean id="simpleCdrTokenizer" class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+		<property name="names" value="recordId,sequenceNum,eventSource,callingParty,calledParty,startDate,endDate,eventType,flatEvent"/>
+		<property name="delimiter" value=";"/>
+	</bean>
+	
+	<bean id="simpleCdrFieldSetMapper" class="com.jswiente.phd.prototype.batch.rating.SimpleCdrFieldSetMapper"/>
+	
+	<bean id="simpleCdrProcessor" class="com.jswiente.phd.prototype.batch.BatchDataProcessor">
+		<property name="dataProcessor">
+			<bean class="com.jswiente.phd.prototype.core.RatingProcessor"/>
+		</property>
+	</bean>
+	
+	<bean id="costedEventWriter" class="com.jswiente.phd.prototype.batch.rating.CostedEventWriter" />
+	
+	<!-- Example CDR ItemReader -->
+	
+	<bean id="exampleCdrItemReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+		<!-- <property name="resource" value="#{jobParameters[inputFile]}" /> -->
+		<property name="resource" value="file:C:/projects/phd/dev/workspace/Data/input/data_0000000001.cdr" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<property name="lineTokenizer" ref="exampleSimpleCdrLineTokenizer" />
+				<property name="fieldSetMapper" ref="exampleSimpleCdrFieldSetMapper"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="exampleSimpleCdrLineTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
 		<property name="names" value="recordNo,sequenceNo,customerNo,callingParty,calledParty,startDate,endDate,callType" />
 		<property name="columns" value="1-15,16-21,22-31,32-51,52-71,72-92,93-113,114-118" />
 	</bean>
 	
-	<bean id="simpleCdrFieldSetMapper" class="com.jswiente.phd.SimpleCdrFieldSetMapper" />
+	<bean id="exampleSimpleCdrFieldSetMapper" class="com.jswiente.phd.prototype.batch.example.ExampleSimpleCdrFieldSetMapper" />
 
 </beans>
