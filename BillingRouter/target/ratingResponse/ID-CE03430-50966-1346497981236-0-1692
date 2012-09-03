@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:costedevent xmlns:ns2="com.jswiente.phd.prototype.domain">
+    <account>
+        <accountId>2997</accountId>
+        <accountNum>1002996</accountNum>
+        <billCylce>1</billCylce>
+        <nextBillDate>2012-04-05T00:00:00+02:00</nextBillDate>
+    </account>
+    <calledParty>+4901703097135</calledParty>
+    <callingParty>+4901703097135</callingParty>
+    <charge>8.19</charge>
+    <costedEventId>0</costedEventId>
+    <endDate>2012-09-01T13:04:30.126+02:00</endDate>
+    <eventType>DATA</eventType>
+    <recordId>247</recordId>
+    <sequenceNum>1</sequenceNum>
+    <startDate>2012-09-01T13:03:13.126+02:00</startDate>
+</ns2:costedevent>
