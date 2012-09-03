@@ -2,14 +2,19 @@ package com.jswiente.phd.prototype.core.test;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.jswiente.phd.prototype.core.ProcessingException;
 import com.jswiente.phd.prototype.core.RatingProcessor;
+import com.jswiente.phd.prototype.domain.Account;
 import com.jswiente.phd.prototype.domain.Costedevent;
 import com.jswiente.phd.prototype.domain.EventType;
 import com.jswiente.phd.prototype.domain.SimpleCDR;
@@ -22,11 +27,20 @@ public class RatingProcessorTest {
 	private RatingProcessor ratingProcessor;
 
 	@Test
-	public void testProcess() {
+	@Transactional
+	public void testProcess() throws Exception {
 		SimpleCDR simpleCDR = getSimpleCDR();
 		Costedevent costedEvent = ratingProcessor.process(simpleCDR);
 		
 		assertNotNull(costedEvent);
+		
+		Account account = costedEvent.getAccount();
+		assertNotNull(account);
+		assertEquals(account.getAccountNum(), 1000000);
+		
+		BigDecimal charge = costedEvent.getCharge();
+		assertNotNull(charge);
+		assertEquals(charge, new BigDecimal("19.50"));
 	}
 	
 	private SimpleCDR getSimpleCDR() {

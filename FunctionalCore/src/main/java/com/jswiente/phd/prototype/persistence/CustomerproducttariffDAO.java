@@ -2,7 +2,6 @@ package com.jswiente.phd.prototype.persistence;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ public class CustomerproducttariffDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(CustomerproducttariffDAO.class);
 
-	@PersistenceContext(type=PersistenceContextType.EXTENDED)
+	@PersistenceContext
 	private EntityManager entityManager;
 
 	public void persist(Customerproducttariff transientInstance) {
@@ -66,5 +65,9 @@ public class CustomerproducttariffDAO {
 			logger.error("get failed", re);
 			throw re;
 		}
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
 }

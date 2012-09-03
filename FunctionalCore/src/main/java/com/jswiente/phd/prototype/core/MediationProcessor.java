@@ -14,12 +14,16 @@ import com.jswiente.phd.prototype.utils.DataUtils;
 public class MediationProcessor implements DataProcessor<RawUsageEvent, SimpleCDR> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MediationProcessor.class);
+	private static final Logger perfLogger = LoggerFactory.getLogger("perf");
 	private static final long MIN_EVENT_DURATION = 5000;
 
+	/* (non-Javadoc)
+	 * @see com.jswiente.phd.prototype.core.MediationProcessInterface#process(com.jswiente.phd.prototype.domain.RawUsageEvent)
+	 */
 	@Override
 	public SimpleCDR process(RawUsageEvent usageEvent) {
 		
-		logger.debug("processing usageEvent with id: " + usageEvent.getRecordId());
+		perfLogger.info("processing usageEvent with id: " + usageEvent.getRecordId());
 		SimpleCDR output = new SimpleCDR(usageEvent);
 			
 		if (usageEvent.isFlatEvent()) {
@@ -35,6 +39,7 @@ public class MediationProcessor implements DataProcessor<RawUsageEvent, SimpleCD
 			output.setSkipReason(SkipReason.INVALID);
 			return output;
 		}
+		perfLogger.info("Finished processing of usageEvent with id: " + usageEvent.getRecordId());
 		
 		return output;
 	}

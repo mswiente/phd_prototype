@@ -1,8 +1,9 @@
 package com.jswiente.phd.prototype.persistence;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +17,25 @@ import com.jswiente.phd.prototype.domain.Costedevent;
 public class CostedeventDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(CostedeventDAO.class);
+	private static final Logger perfLogger = LoggerFactory.getLogger("perf");
 
-	@PersistenceContext(type=PersistenceContextType.EXTENDED)
+	@PersistenceContext
 	private EntityManager entityManager;
 
 	public void persist(Costedevent transientInstance) {
-		logger.debug("persisting Costedevent instance");
+		perfLogger.info("persisting Costedevent with id: " + transientInstance.getRecordId());
 		try {
 			entityManager.persist(transientInstance);
-			logger.debug("persist successful");
+			perfLogger.info("finished persisting Costedevent with id: " + transientInstance.getRecordId());
 		} catch (RuntimeException re) {
 			logger.error("persist failed", re);
 			throw re;
+		}
+	}
+	
+	public void persistAll(List<? extends Costedevent> costedEvents) {
+		for (Costedevent event : costedEvents) {
+			persist(event);
 		}
 	}
 
@@ -64,5 +72,9 @@ public class CostedeventDAO {
 			logger.error("get failed", re);
 			throw re;
 		}
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
 }

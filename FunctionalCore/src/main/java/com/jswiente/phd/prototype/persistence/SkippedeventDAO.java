@@ -2,13 +2,13 @@ package com.jswiente.phd.prototype.persistence;
 
 // Generated 20.03.2012 22:03:30 by Hibernate Tools 3.4.0.CR1
 
-import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jswiente.phd.prototype.domain.Skippedevent;
 
@@ -17,12 +17,13 @@ import com.jswiente.phd.prototype.domain.Skippedevent;
  * @see com.jswiente.phd.prototype.persistence.Skippedevent
  * @author Hibernate Tools
  */
-@Stateless
+@Repository
+@Transactional
 public class SkippedeventDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(SkippedeventDAO.class);
 
-	@PersistenceContext(type=PersistenceContextType.EXTENDED)
+	@PersistenceContext
 	private EntityManager entityManager;
 
 	public void persist(Skippedevent transientInstance) {
@@ -69,5 +70,9 @@ public class SkippedeventDAO {
 			logger.error("get failed", re);
 			throw re;
 		}
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
 }

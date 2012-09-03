@@ -22,6 +22,10 @@ import javax.persistence.UniqueConstraint;
 		"RecordId", "SequenceNum" }))
 public class Calldetail implements Record, java.io.Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 555651154778204513L;
 	private long callDetailId;
 	private Account account;
 	private Long recordId;

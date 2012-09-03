@@ -1,8 +1,15 @@
 package com.jswiente.phd.prototype.domain;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import com.jswiente.phd.prototype.utils.DataUtils;
 
+@XmlType
+@XmlRootElement(namespace = "com.jswiente.phd.prototype.domain")
 public class SimpleCDR extends RawUsageEvent {
+	
+	private static final long serialVersionUID = -436209862752999710L;
 	
 	private boolean skip;
 	private SkipReason skipReason;
@@ -37,7 +44,8 @@ public class SimpleCDR extends RawUsageEvent {
 			.append(calledParty).append(";")
 			.append(DataUtils.formatDate(startDate)).append(";")
 			.append(DataUtils.formatDate(endDate)).append(";")
-			.append(eventType);
+			.append(eventType.getValue()).append(";")
+			.append(flatEvent ? 1 : 0);
 
 		return stringBuilder.toString();
 	}

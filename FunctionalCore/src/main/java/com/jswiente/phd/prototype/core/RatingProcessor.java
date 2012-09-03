@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jswiente.phd.prototype.domain.Account;
 import com.jswiente.phd.prototype.domain.Costedevent;
@@ -25,6 +26,7 @@ import com.jswiente.phd.prototype.utils.DataUtils;
 public class RatingProcessor implements DataProcessor<SimpleCDR, Costedevent> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(RatingProcessor.class);
+	private static final Logger perfLogger = LoggerFactory.getLogger("perf");
 	
 	@Autowired
 	private EventsourceDAO eventSourceDAO;
@@ -32,10 +34,10 @@ public class RatingProcessor implements DataProcessor<SimpleCDR, Costedevent> {
 	@Autowired
 	private AccountDAO accountDAO;
 
-	@Override
-	public Costedevent process(SimpleCDR callDetailRecord) {
+	@Transactional
+	public Costedevent process(SimpleCDR callDetailRecord) throws ProcessingException {
 		
-		logger.debug("processing callDetailRecord with id: " + callDetailRecord.getRecordId());
+		perfLogger.info("processing callDetailRecord with id: " + callDetailRecord.getRecordId());
 		Costedevent output = new Costedevent();
 		
 		output.setRecordId(callDetailRecord.getRecordId());
@@ -56,23 +58,27 @@ public class RatingProcessor implements DataProcessor<SimpleCDR, Costedevent> {
 		Customerproduct customerProduct = eventSource.getCustomerproduct();
 		if (customerProduct == null) {
 			logger.error("Customerproduct not found");
+			throw new ProcessingException("Customerproduct not found");
 		}
 		
 		Account account = accountDAO.getAccount(customerProduct.getAccountNum());
 		if (account == null) {
 			logger.error("Account not found");
+			throw new ProcessingException("Account not found");
 		}
 		output.setAccount(account);
 		
 		Customerproducttariff customerProductTariff = getValidCustomerProductTariff(customerProduct);
 		if (customerProductTariff == null) {
 			logger.error("no valid CustomerProductTariff found");
+			throw new ProcessingException("no valid CustomerProductTariff found");
 		}
 		
 		Tariff tariff = customerProductTariff.getTariff();
 		BigDecimal eventPrice = calculatePrice(callDetailRecord, tariff);
 		
 		output.setCharge(eventPrice);
+		perfLogger.info("finished processing of callDetailRecord with id: " + callDetailRecord.getRecordId());
 		
 		return output;
 	}
@@ -101,6 +107,14 @@ public class RatingProcessor implements DataProcessor<SimpleCDR, Costedevent> {
 		BigDecimal price = usageCharges.multiply(new BigDecimal(eventDuration));
 		
 		return price;
+	}
+
+	public void setEventSourceDAO(EventsourceDAO eventSourceDAO) {
+		this.eventSourceDAO = eventSourceDAO;
+	}
+
+	public void setAccountDAO(AccountDAO accountDAO) {
+		this.accountDAO = accountDAO;
 	}
 
 }

@@ -4,6 +4,8 @@ package com.jswiente.phd.prototype.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -22,19 +24,19 @@ public class Eventsource implements Record, java.io.Serializable {
 	private long eventSourceId;
 	private Customerproduct customerproduct;
 	private String eventSource;
-	private int eventType;
+	private EventType eventType;
 
 	public Eventsource() {
 	}
 
-	public Eventsource(long eventSourceId, String eventSource, int eventType) {
+	public Eventsource(long eventSourceId, String eventSource, EventType eventType) {
 		this.eventSourceId = eventSourceId;
 		this.eventSource = eventSource;
 		this.eventType = eventType;
 	}
 
 	public Eventsource(long eventSourceId, Customerproduct customerproduct,
-			String eventSource, int eventType) {
+			String eventSource, EventType eventType) {
 		this.eventSourceId = eventSourceId;
 		this.customerproduct = customerproduct;
 		this.eventSource = eventSource;
@@ -69,14 +71,17 @@ public class Eventsource implements Record, java.io.Serializable {
 	public void setEventSource(String eventSource) {
 		this.eventSource = eventSource;
 	}
-
+	
+	@Enumerated(EnumType.ORDINAL)
 	@Column(name = "EventType", nullable = false)
 	public EventType getEventType() {
-		return EventType.parse(this.eventType);
+		//return EventType.parse(this.eventType);
+		return eventType;
 	}
 
 	public void setEventType(EventType eventType) {
-		this.eventType = eventType.getValue();
+		//this.eventType = eventType.getValue();
+		this.eventType = eventType;
 	}
 
 }

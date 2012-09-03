@@ -13,7 +13,7 @@ public class BillingProcessor implements DataProcessor<Costedevent, BillRecord> 
 	private static final Logger logger = LoggerFactory.getLogger(BillingProcessor.class);
 
 	@Override
-	public BillRecord process(Costedevent input) {
+	public BillRecord process(Costedevent costedEvent) {
 		// TODO Auto-generated method stub
 		return null;
 	}

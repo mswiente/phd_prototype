@@ -14,7 +14,7 @@ import com.jswiente.phd.prototype.domain.RawUsageEvent;
 
 public class DataUtils {
 	
-	private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
+	private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	
 	/**
 	 * Returns a pseudo random date between start and end date

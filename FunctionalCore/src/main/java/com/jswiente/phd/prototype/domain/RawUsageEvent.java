@@ -2,11 +2,19 @@ package com.jswiente.phd.prototype.domain;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.jswiente.phd.prototype.utils.DataUtils;
 
+@XmlType
+@XmlRootElement(namespace = "com.jswiente.phd.prototype.domain")
 public class RawUsageEvent implements Record {
+
+	private static final long serialVersionUID = -3895616580085784771L;
+	
 	protected long recordId;
 	protected long sequenceNum;
 	protected String eventSource;
@@ -28,7 +36,8 @@ public class RawUsageEvent implements Record {
 			.append(StringUtils.leftPad(calledParty, 20, ' '))
 			.append(DataUtils.formatDate(startDate))
 			.append(DataUtils.formatDate(endDate))
-			.append(eventType);
+			.append(eventType.getValue())
+			.append(flatEvent ? "1":"0");
 
 		return stringBuilder.toString();
 	}
