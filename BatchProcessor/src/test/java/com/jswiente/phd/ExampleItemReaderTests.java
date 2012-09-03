@@ -1,6 +1,6 @@
 package com.jswiente.phd; 
 
-import com.jswiente.phd.ExampleItemReader;
+import com.jswiente.phd.prototype.batch.example.ExampleItemReader;
 
 import junit.framework.TestCase;
 

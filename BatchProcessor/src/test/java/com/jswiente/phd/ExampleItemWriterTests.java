@@ -1,6 +1,6 @@
 package com.jswiente.phd;
 
-import com.jswiente.phd.ExampleItemWriter;
+import com.jswiente.phd.prototype.batch.example.ExampleItemWriter;
 
 import junit.framework.TestCase;
 
