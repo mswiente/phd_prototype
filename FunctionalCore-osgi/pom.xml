@@ -1,0 +1,38 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.jswiente.phd.prototype</groupId>
+	<artifactId>FunctionalCore-osgi</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>FunctionalCore -- OSGI Service</name>
+	<packaging>bundle</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.3.5</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Export-Package>com.jswiente.phd.prototype.core,com.jswiente.phd.prototype.domain</Export-Package>
+						<Import-Package>!com.jswiente.phd.prototype,!org.joda.time,!org.springframework.beans.factory.annotation,!org.springframework.stereotype,!org.springframework.transaction.annotation,*</Import-Package>
+						<Embed-Dependency>FunctionalCore</Embed-Dependency>
+						
+						<Meta-Persistence>META-INF/persistence.xml</Meta-Persistence>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.jswiente.phd.prototype</groupId>
+			<artifactId>FunctionalCore</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+</project>

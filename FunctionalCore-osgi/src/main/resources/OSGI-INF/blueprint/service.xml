@@ -1,0 +1,85 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+	 xmlns:jpa="http://aries.apache.org/xmlns/jpa/v1.0.0"
+     xmlns:tx="http://aries.apache.org/xmlns/transactions/v1.0.0"
+	xsi:schemaLocation="
+             http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd
+             ">
+
+	<!-- DAOs -->
+	<bean id="accountDAO" class="com.jswiente.phd.prototype.persistence.AccountDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="calldetailDAO" class="com.jswiente.phd.prototype.persistence.CalldetailDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="costedEventDAO" class="com.jswiente.phd.prototype.persistence.CostedeventDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="customerDAO" class="com.jswiente.phd.prototype.persistence.CustomerDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="customerProductDAO"
+		class="com.jswiente.phd.prototype.persistence.CustomerproductDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="customerProductTariffDAO"
+		class="com.jswiente.phd.prototype.persistence.CustomerproducttariffDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="eventSourceDAO" class="com.jswiente.phd.prototype.persistence.EventsourceDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="productDAO" class="com.jswiente.phd.prototype.persistence.ProductDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="skippedEventDAO" class="com.jswiente.phd.prototype.persistence.SkippedeventDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<bean id="tariffDAO" class="com.jswiente.phd.prototype.persistence.TariffDAO">
+		<jpa:context property="entityManager" unitname="FunctionalCore" />
+		<tx:transaction method="*" value="Required" />
+	</bean>
+
+	<!-- Processors -->
+	<bean id="mediationProcessor" class="com.jswiente.phd.prototype.core.MediationProcessor" />
+
+	<bean id="ratingProcessor" class="com.jswiente.phd.prototype.core.RatingProcessor">
+		<property name="eventSourceDAO" ref="eventSourceDAO" />
+		<property name="accountDAO" ref="accountDAO" />
+	</bean>
+
+	<bean id="billingProcessor" class="com.jswiente.phd.prototype.core.BillingProcessor" />
+	
+	<bean id="testServer" class="com.jswiente.phd.prototype.core.impl.TestServerImpl" />
+
+	<!-- Services -->
+	<service ref="mediationProcessor"
+		interface="com.jswiente.phd.prototype.core.MediationProcessor" />
+
+	<service ref="ratingProcessor"
+		interface="com.jswiente.phd.prototype.core.RatingProcessor" />
+
+	<service ref="billingProcessor"
+		interface="com.jswiente.phd.prototype.core.BillingProcessor" />
+		
+</blueprint>
