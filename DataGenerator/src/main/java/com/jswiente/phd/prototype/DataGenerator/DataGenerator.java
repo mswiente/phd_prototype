@@ -2,7 +2,6 @@ package com.jswiente.phd.prototype.DataGenerator;
 
 import java.util.Date;
 
-import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
@@ -26,61 +25,65 @@ import com.jswiente.phd.prototype.domain.Record;
 @Component
 public class DataGenerator {
 
-	private Generator generator;
-	
+	private Generator<? extends Record> generator;
+	private Writer<Record> writer;
+	private WriterFactory writerFactory;
+
+	private static WriterFactory.Type writerType = null;
 	private static String outFile = null;
 	private static int noOfRecords = 0;
 	private static int partSize = 0;
 
+	private final static String TYPE_OPTION = "type";
 	private final static String FILENAME_OPTION = "fileName";
 	private final static String PARTSIZE_OPTION = "partSize";
 	private final static String RECORDNO_OPTION = "recordNo";
 	private final static String HELP_OPTION = "help";
 
 	private final static String FILE_EXTENSION = "cdr";
-	
-	private static final Logger logger = LoggerFactory.getLogger(DataGenerator.class);
-	
-	private void run() throws IOException {
 
-		FileWriter out = null;
+	private static final Logger logger = LoggerFactory
+			.getLogger(DataGenerator.class);
+
+	private void run() throws IOException {
 
 		Date start = new Date();
 		logger.info("Generating usage events...");
 
+		writer.open();
 		try {
-			int partition = 0;
 			for (int i = 0; i < noOfRecords; i++) {
 
-				if (i % partSize == 0) {
-					if (out != null) {
-						out.close();
-					}
-					partition++;
-					String fileName = outFile + "_"
-							+ String.format("%010d", partition) + "."
-							+ FILE_EXTENSION;
-					out = new FileWriter(fileName);
-				}
-
-				Record cdr = generator.generate(new Long(i + 1));
-				out.write(cdr.toString() + "\n");
+				Record record = generator.generate(new Long(i + 1));
+				writer.writeRecord(record);
 			}
 		} finally {
-			if (out != null) {
-				out.close();
-			}
+			writer.close();
 		}
 
 		long duration = new Date().getTime() - start.getTime();
-		logger.info("finished processing of " + noOfRecords
-				+ " records in " + duration / 60 + " sec.");
+		logger.info("finished processing of " + noOfRecords + " records in "
+				+ duration / 60 + " sec.");
 	}
-	
+
 	private void init() {
+		
+		//configure writer
+		writer = writerFactory.createWriter(writerType);
+
+		switch (writerType) {
+		case FILE: {
+			((FileWriter) writer).setOutFile(outFile);
+			((FileWriter) writer).setPartSize(partSize);
+		}
+		default:
+		case JMS:
+			// nothing to do yet...
+		}
+
 		generator.init();
 	}
-	
+
 	private void parseCmdLineArgs(String[] args) {
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -93,6 +96,13 @@ public class DataGenerator {
 				formatter.printHelp("DataGenerator", options);
 				System.exit(0);
 				return;
+			}
+
+			if (line.hasOption(TYPE_OPTION)) {
+				writerType = WriterFactory.Type.valueOf(line
+						.getOptionValue(TYPE_OPTION));
+			} else {
+				writerType = WriterFactory.Type.FILE;
 			}
 
 			if (line.hasOption(FILENAME_OPTION)) {
@@ -119,6 +129,10 @@ public class DataGenerator {
 	private static Options getOptions() {
 
 		Option help = new Option(HELP_OPTION, "Print this help message");
+
+		Option type = OptionBuilder.withArgName("type").hasArg()
+				.withDescription("Output type [FILE|JMS]").create(TYPE_OPTION);
+
 		Option fileName = OptionBuilder.withArgName("name").hasArg()
 				.withDescription("Name of the output file")
 				.create(FILENAME_OPTION);
@@ -131,26 +145,34 @@ public class DataGenerator {
 
 		Options options = new Options();
 		options.addOption(help);
+		options.addOption(type);
 		options.addOption(fileName);
 		options.addOption(partitionSize);
 		options.addOption(noOfRecords);
 
 		return options;
 	}
-	
+
 	@Required
-	public void setGenerator(Generator generator) {
+	public void setGenerator(Generator<? extends Record> generator) {
 		this.generator = generator;
+	}
+
+	@Required
+	public void setWriterFactory(WriterFactory writerFactory) {
+		this.writerFactory = writerFactory;
 	}
 
 	public static void main(String[] args) throws IOException {
 
-			ApplicationContext context =
-			    new ClassPathXmlApplicationContext(new String[] {"spring-config.xml", "spring-jpa.xml"});
-			
-			DataGenerator dataGenerator = context.getBean(DataGenerator.class);
-			dataGenerator.parseCmdLineArgs(args);
-			dataGenerator.init();
-			dataGenerator.run();
+		ApplicationContext context = new ClassPathXmlApplicationContext(
+				new String[] { "spring-config.xml", "spring-jpa.xml" });
+
+		DataGenerator dataGenerator = context.getBean(DataGenerator.class);
+		dataGenerator.parseCmdLineArgs(args);
+		dataGenerator.init();
+		dataGenerator.run();
+
+		((ClassPathXmlApplicationContext) context).close();
 	}
 }

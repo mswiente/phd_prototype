@@ -7,7 +7,7 @@ import com.jswiente.phd.prototype.domain.Record;
 import com.jswiente.phd.prototype.domain.SimpleCDR;
 import com.jswiente.phd.prototype.utils.DataUtils;
 
-public class SimpleCDRGenerator implements Generator {
+public class SimpleCDRGenerator implements Generator<Record> {
 	
 	private DateMidnight start;
 	private DateMidnight end;
@@ -20,7 +20,6 @@ public class SimpleCDRGenerator implements Generator {
 	/* (non-Javadoc)
 	 * @see com.jswiente.phd.DataGenerator.Generator#generate(java.math.BigInteger)
 	 */
-	@Override
 	public Record generate(Long id) {
 		
 		SimpleCDR cdr = new SimpleCDR();
@@ -35,7 +34,6 @@ public class SimpleCDRGenerator implements Generator {
 		return cdr;
 	}
 	
-	@Override
 	public void init()
 	{
 		

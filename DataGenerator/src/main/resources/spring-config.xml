@@ -1,20 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms" xmlns:amq="http://activemq.apache.org/schema/core"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 		http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/tx
 		http://www.springframework.org/schema/tx/spring-tx.xsd
 		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context-3.0.xsd">
-	
-	<context:annotation-config/>
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/jms 
+		http://www.springframework.org/schema/jms/spring-jms.xsd
+		http://activemq.apache.org/schema/core 
+		http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+	<context:annotation-config />
 	<context:component-scan base-package="com.jswiente.phd.prototype" />
-	
+
 	<bean id="dataGenerator" class="com.jswiente.phd.prototype.DataGenerator.DataGenerator">
-		<property name="generator" ref="usageEventGenerator"/>
+		<property name="generator" ref="usageEventGenerator" />
+		<property name="writerFactory" ref="WriterFactory" />
 	</bean>
+
+	<!-- A connection to ActiveMQ -->
+	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory"
+		p:brokerURL="tcp://localhost:61616?daemon=true" />
+
+	<!-- A cached connection to wrap the ActiveMQ connection -->
+	<bean id="cachedConnectionFactory"
+		class="org.springframework.jms.connection.CachingConnectionFactory"
+		p:targetConnectionFactory-ref="amqConnectionFactory"
+		p:sessionCacheSize="10" />
+
+	<!-- A destination in ActiveMQ -->
+	<bean id="destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="BILLING.USAGE_EVENTS" />
+	</bean>
+
+	<!-- A JmsTemplate instance that uses the cached connection and destination -->
+	<bean id="producerTemplate" class="org.springframework.jms.core.JmsTemplate"
+		p:connectionFactory-ref="cachedConnectionFactory"
+		p:defaultDestination-ref="destination" />
+		
+	<bean id="JMSWriter" class="com.jswiente.phd.prototype.DataGenerator.JMSWriter" scope="prototype" lazy-init="true" />
 	
+	<bean id="FileWriter" class="com.jswiente.phd.prototype.DataGenerator.FileWriter" scope="prototype" lazy-init="true" />
+	
+	<bean id="WriterFactory" class="com.jswiente.phd.prototype.DataGenerator.WriterFactory" >
+		<lookup-method name="createJMSWriter" bean="JMSWriter" />
+		<lookup-method name="createFileWriter" bean="FileWriter" />
+	</bean>
+
 </beans>
