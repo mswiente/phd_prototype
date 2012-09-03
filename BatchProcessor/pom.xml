@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.springframework.samples.batch</groupId>
-	<artifactId>spring-batch-simple</artifactId>
-	<version>2.0.0.CI-SNAPSHOT</version>
+	<groupId>com.jswiente.phd.prototype</groupId>
+	<artifactId>BatchProcessor</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Commandline</name>
 	<url>http://www.springframework.org/spring-batch/archetypes/simple-cli-archetype</url>
@@ -20,8 +20,8 @@
 	</description>
 	<properties>
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
-		<spring.framework.version>3.0.5.RELEASE</spring.framework.version>
-		<spring.batch.version>2.1.7.RELEASE</spring.batch.version>
+		<spring.framework.version>3.1.1.RELEASE</spring.framework.version>
+		<spring.batch.version>2.1.8.RELEASE</spring.batch.version>
 	</properties>
 	<profiles>
 		<profile>
@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
-			<version>1.2.2</version>
+			<version>1.4</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -127,19 +127,39 @@
 			<version>1.6.8</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
-		</dependency>
-		<dependency>
 			<groupId>com.jswiente.phd.prototype</groupId>
 			<artifactId>FunctionalCore</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.18</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.0.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+			<version>1.6.4</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -167,7 +187,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<!--forkMode>pertest</forkMode-->
+					<!--forkMode>pertest</forkMode -->
 					<includes>
 						<include>**/*Tests.java</include>
 					</includes>
@@ -186,7 +206,10 @@
 						<!-- job configuration file -->
 						<argument>classpath:/launch-context.xml</argument>
 						<!-- job name -->
-						<argument>job1</argument>
+						<argument>billingJob</argument>
+						<argument>inputFile=C:/projects/phd/dev/workspace/Data/input/data_0000000001.cdr</argument>
+						<argument>outputFile=C:/projects/phd/dev/workspace/Data/output/output.txt</argument>
+						<argument>-next</argument>
 					</arguments>
 				</configuration>
 			</plugin>
