@@ -84,4 +84,9 @@ public class Eventsource implements Record, java.io.Serializable {
 		this.eventType = eventType;
 	}
 
+	@Override
+	public long getId() {
+		return eventSourceId;
+	}
+
 }

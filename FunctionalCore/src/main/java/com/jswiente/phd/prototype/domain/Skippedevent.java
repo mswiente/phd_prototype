@@ -164,4 +164,9 @@ public class Skippedevent implements Record, java.io.Serializable {
 		this.skipReason = skipReason;
 	}
 
+	@Override
+	public long getId() {
+		return skippedEventId;
+	}
+
 }

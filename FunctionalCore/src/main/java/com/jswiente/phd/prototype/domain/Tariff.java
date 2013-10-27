@@ -106,4 +106,9 @@ public class Tariff implements Record, java.io.Serializable {
 		this.customerproducttariffs = customerproducttariffs;
 	}
 
+	@Override
+	public long getId() {
+		return tarifId;
+	}
+
 }

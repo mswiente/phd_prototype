@@ -18,6 +18,7 @@
 		<class>com.jswiente.phd.prototype.domain.Calldetail</class>
 		<class>com.jswiente.phd.prototype.domain.Skippedevent</class>
 		<properties>
+			<property name="openjpa.Log" value="slf4j" />
 		</properties>
 
 	</persistence-unit>

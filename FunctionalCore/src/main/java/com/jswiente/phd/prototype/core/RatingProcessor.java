@@ -21,12 +21,13 @@ import com.jswiente.phd.prototype.domain.Tariff;
 import com.jswiente.phd.prototype.persistence.AccountDAO;
 import com.jswiente.phd.prototype.persistence.EventsourceDAO;
 import com.jswiente.phd.prototype.utils.DataUtils;
+import com.jswiente.phd.prototype.utils.LogUtils;
+import com.jswiente.phd.prototype.utils.Stopwatch;
 
 @Service
 public class RatingProcessor implements DataProcessor<SimpleCDR, Costedevent> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(RatingProcessor.class);
-	private static final Logger perfLogger = LoggerFactory.getLogger("perf");
 	
 	@Autowired
 	private EventsourceDAO eventSourceDAO;
@@ -35,9 +36,9 @@ public class RatingProcessor implements DataProcessor<SimpleCDR, Costedevent> {
 	private AccountDAO accountDAO;
 
 	@Transactional
-	public Costedevent process(SimpleCDR callDetailRecord) throws ProcessingException {
+	public Costedevent process(SimpleCDR callDetailRecord) throws ProcessingException, Exception {
 		
-		perfLogger.info("processing callDetailRecord with id: " + callDetailRecord.getRecordId());
+		Stopwatch stopwatch = Stopwatch.start(LogUtils.Event.RATING_START.toString(), callDetailRecord.getRecordId());
 		Costedevent output = new Costedevent();
 		
 		output.setRecordId(callDetailRecord.getRecordId());
@@ -78,7 +79,11 @@ public class RatingProcessor implements DataProcessor<SimpleCDR, Costedevent> {
 		BigDecimal eventPrice = calculatePrice(callDetailRecord, tariff);
 		
 		output.setCharge(eventPrice);
-		perfLogger.info("finished processing of callDetailRecord with id: " + callDetailRecord.getRecordId());
+		
+		//Simulating some more processing time...
+		Thread.sleep(10);
+		
+		LogUtils.logElapsedTime(stopwatch.stop());
 		
 		return output;
 	}

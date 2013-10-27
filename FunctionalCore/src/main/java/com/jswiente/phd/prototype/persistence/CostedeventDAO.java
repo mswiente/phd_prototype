@@ -17,16 +17,13 @@ import com.jswiente.phd.prototype.domain.Costedevent;
 public class CostedeventDAO {
 
 	private static final Logger logger = LoggerFactory.getLogger(CostedeventDAO.class);
-	private static final Logger perfLogger = LoggerFactory.getLogger("perf");
 
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	public void persist(Costedevent transientInstance) {
-		perfLogger.info("persisting Costedevent with id: " + transientInstance.getRecordId());
 		try {
 			entityManager.persist(transientInstance);
-			perfLogger.info("finished persisting Costedevent with id: " + transientInstance.getRecordId());
 		} catch (RuntimeException re) {
 			logger.error("persist failed", re);
 			throw re;

@@ -7,6 +7,8 @@ public interface Record extends Serializable {
 	/**
 	 * Returns the string representation of the record
 	 */
-	public abstract String toString();
+	
+	public long getId();
+	
 
 }

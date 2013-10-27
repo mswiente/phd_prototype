@@ -65,4 +65,9 @@ public class Product implements Record, java.io.Serializable {
 		this.customerproducts = customerproducts;
 	}
 
+	@Override
+	public long getId() {
+		return productId;
+	}
+
 }

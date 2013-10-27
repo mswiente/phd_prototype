@@ -23,7 +23,7 @@ public class MediationProcessorTest {
 	private MediationProcessor mediationProcessor;
 	
 	@Test
-	public void testProcess() {
+	public void testProcess() throws Exception {
 		
 		RawUsageEvent usageEvent = getUsageEvent();
 		SimpleCDR simpleCDR = mediationProcessor.process(usageEvent);
@@ -33,7 +33,7 @@ public class MediationProcessorTest {
 	}
 	
 	@Test
-	public void testProcessFlatEvent() {
+	public void testProcessFlatEvent() throws Exception {
 		RawUsageEvent usageEvent = getUsageEvent();
 		usageEvent.setFlatEvent(true);
 		SimpleCDR simpleCDR = mediationProcessor.process(usageEvent);
@@ -44,7 +44,7 @@ public class MediationProcessorTest {
 	}
 	
 	@Test
-	public void testProcessInvalidEvent() {
+	public void testProcessInvalidEvent() throws Exception {
 		RawUsageEvent usageEvent = getUsageEvent();
 		DateTime startDate = new DateTime(usageEvent.getEndDate());
 		startDate = startDate.minusSeconds(1);

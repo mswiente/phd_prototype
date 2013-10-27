@@ -181,4 +181,9 @@ public class Customer implements Record, java.io.Serializable {
 	public void setMail(String mail) {
 		this.mail = mail;
 	}
+
+	@Override
+	public long getId() {
+		return customerId;
+	}
 }
