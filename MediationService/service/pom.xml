@@ -1,0 +1,131 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.jswiente.phd.prototype</groupId>
+		<artifactId>MediationService</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<groupId>com.jswiente.phd.prototype</groupId>
+	<artifactId>MediationService-service</artifactId>
+	<name>MediationService -- Web Service Provider</name>
+	<packaging>bundle</packaging>
+
+	<build>
+		<plugins>
+			<!-- Below plugin provides a separate JAR for the JAX-WS artifacts (i.e., 
+				the objects created by running wsdl2java or wsimport), as this JAR will also 
+				be used by the SOAP client. More info: http://maven.apache.org/plugins/maven-assembly-plugin/ -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/assembly/jaxws-jar.xml</descriptor>
+					</descriptors>
+					<appendAssemblyId>true</appendAssemblyId>
+					<attach>true</attach>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>2.3.5</version>
+					<extensions>true</extensions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<!-- Name of the generated WAR file -->
+		<finalName>mediationService</finalName>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>CXF</id>
+			<!-- To use Metro by default, move activation element to its profile below -->
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.cxf</groupId>
+						<artifactId>cxf-java2ws-plugin</artifactId>
+						<version>${cxf.version}</version>
+						<executions>
+							<execution>
+								<id>process-classes</id>
+								<phase>process-classes</phase>
+								<configuration>
+									<className>
+										com.jswiente.phd.prototype.messaging.mediation.service.MediationPortTypeImpl
+                           			</className>
+									<genWsdl>true</genWsdl>
+									<verbose>true</verbose>
+								</configuration>
+								<goals>
+									<goal>java2ws</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.felix</groupId>
+						<artifactId>maven-bundle-plugin</artifactId>
+						<extensions>true</extensions>
+						<configuration>
+							<instructions>
+								<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+								<Require-Bundle>org.apache.cxf.bundle,org.springframework.beans</Require-Bundle>
+								<Export-Package>com.jswiente.phd.prototype.messaging.mediation.service</Export-Package>
+							</instructions>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<dependencies>
+		<dependency>
+			<groupId>com.jswiente.phd.prototype</groupId>
+			<artifactId>FunctionalCore</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>3.1.1.RELEASE</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.0.1</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+</project>
+
