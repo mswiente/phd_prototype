@@ -6,6 +6,7 @@ import org.springframework.validation.BindException;
 
 import com.jswiente.phd.prototype.domain.EventType;
 import com.jswiente.phd.prototype.domain.RawUsageEvent;
+import com.jswiente.phd.prototype.utils.LogUtils;
 
 public class RawUsageEventFieldSetMapper implements FieldSetMapper<RawUsageEvent> {
 
@@ -33,6 +34,8 @@ public class RawUsageEventFieldSetMapper implements FieldSetMapper<RawUsageEvent
 		usageEvent.setEndDate(fieldSet.readDate(ENDDATE_COLUMN, "yyyy-MM-dd'T'HH:mm:ssZ"));
 		usageEvent.setEventType(EventType.parse(fieldSet.readInt(EVENTTYPE_COLUMN)));
 		usageEvent.setFlatEvent(fieldSet.readBoolean(FLATEVENT_COLUMN));
+		
+		LogUtils.logEvent(LogUtils.Event.PROC_START, usageEvent.getRecordId());
 		
 		return usageEvent;
 	}

@@ -207,7 +207,7 @@
 						<argument>classpath:/launch-context.xml</argument>
 						<!-- job name -->
 						<argument>billingJob</argument>
-						<argument>inputFile=C:/projects/phd/dev/workspace/Data/input/data_0000000001.cdr</argument>
+						<argument>inputFile=C:/projects/phd/dev/workspace/Data/input/testdata_1000_1.cdr</argument>
 						<argument>outputFile=C:/projects/phd/dev/workspace/Data/output/output.txt</argument>
 						<argument>-next</argument>
 					</arguments>
@@ -241,6 +241,10 @@
 							<classpathPrefix>lib/</classpathPrefix>
 						</manifest>
 					</archive>
+					<excludes>
+						<exclude>batch.properties</exclude>
+						<exclude>jpa.properties</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>
