@@ -1,0 +1,14 @@
+<assembly>
+   <id>jaxws</id>
+   <formats>
+      <format>jar</format>
+   </formats>
+   <includeBaseDirectory>false</includeBaseDirectory>
+   <files>
+      <file>
+         <source>target/classes/com/jswiente/phd/prototype/messaging/rating/service/RatingPortType.class</source>
+         <outputDirectory>/com/jswiente/phd/prototype/messaging/rating/service</outputDirectory>
+      </file>
+   </files>
+</assembly>
+

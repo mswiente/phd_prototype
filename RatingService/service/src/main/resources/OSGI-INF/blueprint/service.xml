@@ -1,0 +1,21 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+	xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws" xmlns:cxf="http://cxf.apache.org/blueprint/core"
+	xsi:schemaLocation="
+             http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+             http://cxf.apache.org/blueprint/jaxws http://cxf.apache.org/schemas/blueprint/jaxws.xsd
+             http://cxf.apache.org/blueprint/core http://cxf.apache.org/schemas/blueprint/core.xsd
+             ">
+
+	<reference id="ratingProcessorRef" interface="com.jswiente.phd.prototype.core.RatingProcessor"/>
+	
+	<bean id="ratingService" class="com.jswiente.phd.prototype.messaging.rating.service.RatingPortTypeImpl">
+		<property name="processor" ref="ratingProcessorRef"/>
+	</bean>
+
+	<jaxws:endpoint id="rating"
+		implementor="#ratingService"
+		address="/rating">
+	</jaxws:endpoint>
+
+</blueprint>
