@@ -13,36 +13,54 @@
 <!-- Configures the Camel Context -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:component-scan base-package="com.jswiente.phd.prototype.BillingRouter" />
+	<context:load-time-weaver/>
+	
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:camel.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
 
 	<import resource="classpath:META-INF/spring/camel-cxf.xml" />
 	<import resource="classpath:spring-jpa.xml" />
 
-	<camelContext xmlns="http://camel.apache.org/schema/spring">
-		<package>com.jswiente.phd.prototype.BillingRouter</package>
+	<camelContext trace="${camel.tracer}" xmlns="http://camel.apache.org/schema/spring">
+		<!-- <package>com.jswiente.phd.prototype.BillingRouter</package> -->
+		<routeBuilder ref="billingRoute" />
 		<dataFormats>
-			<jaxb id="myJaxb" prettyPrint="true"
+			<jaxb id="jaxbContext" prettyPrint="true"
 				contextPath="com.jswiente.phd.prototype.domain" />
 		</dataFormats>
 	</camelContext>
 
 	<bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-		<property name="brokerURL" value="tcp://localhost:61616" />
+		<property name="brokerURL" value="${camel.activemq.brokerURL}" />
 	</bean>
 
 	<bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
-		<property name="maxConnections" value="8" />
-		<property name="maximumActive" value="500" />
+		<!-- <property name="maxConnections" value="8" /> <property name="maximumActive" 
+			value="500" /> -->
+		<property name="maxConnections" value="${camel.activemq.maxConnections}" />
+		<property name="maximumActive" value="${camel.activemq.maximumActive}" />
 		<property name="connectionFactory" ref="jmsConnectionFactory" />
 	</bean>
 
 	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
 		<property name="connectionFactory" ref="pooledConnectionFactory" />
 		<property name="transacted" value="false" />
-		<property name="concurrentConsumers" value="10" />
+		<!-- <property name="concurrentConsumers" value="10" /> -->
+		<property name="concurrentConsumers" value="${camel.jms.concurrentConsumers}" />
 	</bean>
 
 	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
@@ -53,5 +71,11 @@
 		<property name="entityManagerFactory" ref="entityManager" />
 		<property name="transactionManager" ref="transactionManager" />
 	</bean>
+	
+	<bean id="billingRoute" class="com.jswiente.phd.prototype.BillingRouter.BillingRouteBuilder" />
+	
+	<bean id="loggingInterceptor" class="com.jswiente.phd.prototype.camelutils.LoggingInterceptor" />
+	
+	<bean id="loggingAspect" class="com.jswiente.phd.prototype.BillingRouter.LoggingAspect" />
 
 </beans>

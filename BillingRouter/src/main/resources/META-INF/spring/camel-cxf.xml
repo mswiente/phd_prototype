@@ -30,10 +30,10 @@
   <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml"/>
   
   <cxf:cxfEndpoint id="mediationEndpoint"
-                   address="http://localhost:8080/mediationService/services/mediation/"
+                   address="${camel.cxf.mediation.endpoint.address}"
                    serviceClass="com.jswiente.phd.prototype.messaging.mediation.service.MediationPortType"/>
   
   <cxf:cxfEndpoint id="ratingEndpoint"
-                   address="http://localhost:8080/ratingService/services/rating/"
+                   address="${camel.cxf.rating.endpoint.address}"
                    serviceClass="com.jswiente.phd.prototype.messaging.rating.service.RatingPortType"/>
 </beans>
