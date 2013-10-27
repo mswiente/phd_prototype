@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+	<context:component-scan base-package="com.jswiente.phd.prototype" />
+
+	<!-- <jdbc:initialize-database data-source="jobRepositoryDataSource"> <jdbc:script 
+		location="${batch.schema.script}" /> </jdbc:initialize-database> -->
+
+	<bean id="jobRepositoryDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="${batch.jdbc.url}" />
+		<property name="username" value="${batch.jdbc.user}" />
+		<property name="password" value="${batch.jdbc.password}" />
+		<property name="maxActive" value="${batch.jdbc.maxActive}" />
+		<property name="maxWait" value="${batch.jdbc.maxWait}" />
+	</bean>
+
+	<bean id="batchTransactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		lazy-init="true">
+		<property name="dataSource" ref="jobRepositoryDataSource" />
+	</bean>
+
+	<batch:job-repository id="jobRepository"
+		data-source="jobRepositoryDataSource" transaction-manager="batchTransactionManager"
+		isolation-level-for-create="DEFAULT" />
+
+	<bean id="jobLauncher"
+		class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+	</bean>
+
+	<bean id="jobExplorer"
+		class="org.springframework.batch.core.explore.support.JobExplorerFactoryBean">
+		<property name="dataSource" ref="jobRepositoryDataSource" />
+	</bean>
+
+	<bean id="jobRunIdIncrementer" class="com.jswiente.phd.prototype.batch.JobRunIdIncrementer" />
+
+	<batch:job id="mediationJob" incrementer="jobRunIdIncrementer">
+		<batch:step id="mediationStep" next="renameFileStep">
+			<batch:tasklet transaction-manager="batchTransactionManager"
+				start-limit="100">
+				<batch:chunk reader="rawUsageEventReader" processor="rawUsageEventProcessor"
+					writer="loggingSimpleCdrWriter" commit-interval="1000" />
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="renameFileStep">
+			<batch:tasklet ref="renameFileTasklet" />
+		</batch:step>
+	</batch:job>
+
+	<batch:job id="mediationMultiThreadedJob" incrementer="jobRunIdIncrementer">
+		<batch:step id="mediationMultiThreadedStep"  next="renameFileMultiThreadedStep">
+			<batch:tasklet transaction-manager="batchTransactionManager"
+				start-limit="100" 
+				task-executor="taskExecutor" throttle-limit="${batch.step.throttle-limit}">
+				<batch:chunk reader="rawUsageMultiThreadedEventReader" processor="rawUsageEventProcessor"
+					writer="loggingSimpleCdrWriter" commit-interval="1000" />
+			</batch:tasklet>
+		</batch:step>
+		<batch:step id="renameFileMultiThreadedStep">
+			<batch:tasklet ref="renameFileTasklet" />
+		</batch:step>
+	</batch:job>
+	
+	<bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="${batch.taskExecutor.corePoolSize}"/>
+		<property name="maxPoolSize" value="${batch.taskExecutor.maxPoolSize}"/>
+	</bean>
+
+	<!-- RenameFile Tasklet -->
+
+	<bean id="renameFileTasklet" class="com.jswiente.phd.prototype.batchroute.RenameFileTasklet"
+		scope="step">
+		<property name="inputResource"
+			value="file:${batch.dir.temp}/#{jobParameters[CamelFileName]}.temp" />
+		<property name="outputResource"
+			value="file:${batch.dir.output}/#{jobParameters[CamelFileName]}.csv" />
+	</bean>
+
+	<!-- Mediation BatchProcessor -->
+
+	<bean id="rawUsageEventReader" class="org.springframework.batch.item.file.FlatFileItemReader"
+		scope="step">
+		<property name="resource" value="file:#{jobParameters[CamelFileAbsolutePath]}" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<property name="lineTokenizer" ref="rawUsageEventTokenizer" />
+				<property name="fieldSetMapper" ref="rawUsageEventFieldSetMapper" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="rawUsageMultiThreadedEventReader" class="com.jswiente.phd.prototype.batch.MultiThreadedFlatFileItemReader" scope="step">
+		<property name="delegate" ref="rawUsageEventReader"/>
+	</bean>
+
+	<bean id="rawUsageEventTokenizer"
+		class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+		<property name="names"
+			value="recordId,sequenceNum,eventSource,callingParty,calledParty,startDate,endDate,eventType,flatEvent" />
+		<property name="columns"
+			value="1-15,16-21,22-41,42-61,62-81,82-105,106-129,130,131" />
+	</bean>
+
+	<bean id="rawUsageEventFieldSetMapper"
+		class="com.jswiente.phd.prototype.batch.mediation.RawUsageEventFieldSetMapper" />
+
+	<bean id="rawUsageEventProcessor" class="com.jswiente.phd.prototype.batch.BatchDataProcessor">
+		<property name="dataProcessor">
+			<bean class="com.jswiente.phd.prototype.core.MediationProcessor" />
+		</property>
+	</bean>
+
+	<bean id="simpleCdrWriter" class="org.springframework.batch.item.file.FlatFileItemWriter"
+		scope="step">
+		<property name="resource"
+			value="file:${batch.dir.temp}/#{jobParameters[CamelFileName]}.temp" />
+		<property name="lineAggregator">
+			<bean
+				class="org.springframework.batch.item.file.transform.PassThroughLineAggregator" />
+		</property>
+	</bean>
+	
+	<bean id="loggingSimpleCdrWriter" class="com.jswiente.phd.prototype.batch.LoggingFlatFileItemWriter"
+		scope="step">
+		<property name="delegate" ref="simpleCdrWriter" />
+	</bean>
+
+</beans>
