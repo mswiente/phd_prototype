@@ -8,4 +8,5 @@ public interface Writer<T extends Record> {
 	public void writeRecord(T record) throws IOException;
 	public void open();
 	public void close() throws IOException;
+	public void setConfig(Configuration config);
 }

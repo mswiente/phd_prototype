@@ -16,6 +16,17 @@
 
 	<context:annotation-config />
 	<context:component-scan base-package="com.jswiente.phd.prototype" />
+	<context:mbean-export/>
+	
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:datagenerator.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
 
 	<bean id="dataGenerator" class="com.jswiente.phd.prototype.DataGenerator.DataGenerator">
 		<property name="generator" ref="usageEventGenerator" />
@@ -24,7 +35,7 @@
 
 	<!-- A connection to ActiveMQ -->
 	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory"
-		p:brokerURL="tcp://localhost:61616?daemon=true" />
+		p:brokerURL="${datagenerator.activemq.brokerUrl}" />
 
 	<!-- A cached connection to wrap the ActiveMQ connection -->
 	<bean id="cachedConnectionFactory"
@@ -41,12 +52,14 @@
 	<bean id="producerTemplate" class="org.springframework.jms.core.JmsTemplate"
 		p:connectionFactory-ref="cachedConnectionFactory"
 		p:defaultDestination-ref="destination" />
-		
-	<bean id="JMSWriter" class="com.jswiente.phd.prototype.DataGenerator.JMSWriter" scope="prototype" lazy-init="true" />
-	
-	<bean id="FileWriter" class="com.jswiente.phd.prototype.DataGenerator.FileWriter" scope="prototype" lazy-init="true" />
-	
-	<bean id="WriterFactory" class="com.jswiente.phd.prototype.DataGenerator.WriterFactory" >
+
+	<bean id="JMSWriter" class="com.jswiente.phd.prototype.DataGenerator.JMSWriter"
+		scope="prototype" lazy-init="true" />
+
+	<bean id="FileWriter" class="com.jswiente.phd.prototype.DataGenerator.FileWriter"
+		scope="prototype" lazy-init="true" />
+
+	<bean id="WriterFactory" class="com.jswiente.phd.prototype.DataGenerator.WriterFactory">
 		<lookup-method name="createJMSWriter" bean="JMSWriter" />
 		<lookup-method name="createFileWriter" bean="FileWriter" />
 	</bean>

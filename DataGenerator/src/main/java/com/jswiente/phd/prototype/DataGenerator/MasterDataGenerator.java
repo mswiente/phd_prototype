@@ -14,6 +14,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.joda.time.DateMidnight;
 
 import com.jswiente.phd.prototype.domain.*;
 import com.jswiente.phd.prototype.persistence.AccountDAO;

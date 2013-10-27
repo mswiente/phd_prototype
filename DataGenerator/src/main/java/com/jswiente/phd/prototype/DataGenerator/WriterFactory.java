@@ -1,6 +1,6 @@
 package com.jswiente.phd.prototype.DataGenerator;
 
-import com.jswiente.phd.prototype.domain.Record;
+import com.jswiente.phd.prototype.domain.RawUsageEvent;
 
 public abstract class WriterFactory {
 	
@@ -12,13 +12,18 @@ public abstract class WriterFactory {
 	protected abstract JMSWriter createJMSWriter();
 	protected abstract FileWriter createFileWriter();
 
-	public Writer<Record> createWriter(Type type) {
-		switch (type) {
-		case JMS:
-			return createJMSWriter();
-		default:
-		case FILE:
-			return createFileWriter();
+	public Writer<RawUsageEvent> createWriter(Configuration config) {
+		Writer<RawUsageEvent> writer;
+		switch (config.getWriterType()) {
+			case JMS: {
+				writer = createJMSWriter();
+			}
+			default:
+			case FILE: {
+				writer = createFileWriter();
+			}
 		}
+		writer.setConfig(config);
+		return writer;
 	}
 }
