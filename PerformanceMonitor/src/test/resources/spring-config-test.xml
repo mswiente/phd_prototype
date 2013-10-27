@@ -64,9 +64,9 @@
 	<bean id="monitoredService" class="com.jswiente.phd.performance.test.MonitoredService" />
 
 	<bean id="notificationListener" class="com.jswiente.phd.performance.DefaultNotificationListener">
-		<property name="controller" ref="delayController" />
+		<property name="controller" ref="delayActuator" />
 	</bean>
 	
-	<bean id="delayController" class="com.jswiente.phd.performance.test.DelayController" />
+	<bean id="delayActuator" class="com.jswiente.phd.performance.test.DelayActuator" />
 
 </beans>

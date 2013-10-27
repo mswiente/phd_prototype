@@ -15,17 +15,17 @@ public class DefaultNotificationListener implements NotificationListener, Notifi
 	private static final Logger logger = LoggerFactory
 	.getLogger(DefaultNotificationListener.class);
 	
-	private Controller controller;
+	private Actuator actuator;
 	
 	@Override
 	public void handleNotification(Notification notification, Object handback) {
 		
 		logger.debug("Received notification: " + notification.getType());
 		if (notification.getType().equals(PerformanceNotification.Type.HIGH_THRESHOLD_EXCEEDED.toString())) {
-			controller.onHighThreshold();
+			actuator.onHighThreshold();
 		}
 		else if (notification.getType().equals(PerformanceNotification.Type.LOW_THRESHOLD_BELOW.toString())) {
-			controller.onLowThreshold();
+			actuator.onLowThreshold();
 		}
 	}
 	
@@ -34,7 +34,7 @@ public class DefaultNotificationListener implements NotificationListener, Notifi
 		return MonitorNotification.class.isAssignableFrom(notification.getClass());
 	}
 
-	public void setController(Controller controller) {
-		this.controller = controller;
+	public void setController(Actuator actuator) {
+		this.actuator = actuator;
 	}
 }
