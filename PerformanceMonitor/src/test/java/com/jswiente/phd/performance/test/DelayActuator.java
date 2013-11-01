@@ -42,4 +42,10 @@ public class DelayActuator implements Actuator {
 		this.interval = interval;
 	}
 
+	@Override
+	public void setValue(Double value) {
+		logger.debug("Setting value: value=" + value.intValue());
+		monitoredService.setDelay(value.intValue());
+	}
+
 }

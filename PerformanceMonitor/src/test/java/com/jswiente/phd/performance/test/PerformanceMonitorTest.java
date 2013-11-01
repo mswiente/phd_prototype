@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.jswiente.phd.performance.PerformanceMonitor;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring-config-test.xml")
 public class PerformanceMonitorTest {
@@ -24,6 +26,9 @@ public class PerformanceMonitorTest {
 		
 		MonitoredService monitoredService = context.getBean(MonitoredService.class);
 		monitoredService.start();
+		
+		PerformanceMonitor monitor = context.getBean(PerformanceMonitor.class);
+		monitor.start();
 		
 		Thread.sleep(Long.MAX_VALUE);
 		

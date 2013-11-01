@@ -15,13 +15,14 @@ import com.jswiente.phd.performance.Sample;
 public class MonitoredService {
 	
 	private Integer delay;
+	private Integer workTime = 100;
 	@Autowired
 	private PerformanceMonitor performanceMonitor;
 	private ExecutorService executorService;
 	private Future<?> task;
 	
 	public MonitoredService() {
-		this.delay = 500;
+		this.delay = 1000;
 		this.executorService = Executors.newSingleThreadExecutor();
 	}
 	
@@ -33,7 +34,7 @@ public class MonitoredService {
 				while (true) {
 					Long start = System.currentTimeMillis();
 					try {
-						Thread.sleep(delay);
+						Thread.sleep(workTime + delay);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

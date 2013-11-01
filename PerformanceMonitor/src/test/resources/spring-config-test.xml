@@ -29,11 +29,12 @@
 		<property name="autodetect" value="true" />
 		<property name="assembler" ref="assembler" />
 		<property name="namingStrategy" ref="namingStrategy" />
-		<property name="notificationListenerMappings">
+<!--  	<property name="notificationListenerMappings">
 			<map>
 				<entry key="performanceMonitor" value-ref="notificationListener" />
 			</map>
 		</property>
+-->
 	</bean>
 
 	<bean id="assembler"
@@ -59,14 +60,28 @@
 	</bean>
 -->
 
-	<bean id="performanceMonitor" class="com.jswiente.phd.performance.PerformanceMonitor" />
+	<bean id="performanceMonitor" class="com.jswiente.phd.performance.PerformanceMonitor">
+		<property name="controller" ref="controller" />
+	</bean>
+	
+	<bean id="controller" class="com.jswiente.phd.performance.Controller">
+		<property name="strategy" ref="pControllerStrategy" />
+		<property name="actuator" ref="delayActuator" />
+	</bean>
 
-	<bean id="monitoredService" class="com.jswiente.phd.performance.test.MonitoredService" />
-
-	<bean id="notificationListener" class="com.jswiente.phd.performance.DefaultNotificationListener">
-		<property name="controller" ref="delayActuator" />
+	<bean id="pControllerStrategy" class="com.jswiente.phd.performance.PControllerStrategy">
+		<property name="kp" value="1" />
 	</bean>
 	
 	<bean id="delayActuator" class="com.jswiente.phd.performance.test.DelayActuator" />
+	
+	<bean id="monitoredService" class="com.jswiente.phd.performance.test.MonitoredService" />
+
+<!--
+	<bean id="notificationListener" class="com.jswiente.phd.performance.DefaultNotificationListener">
+		<property name="controller" ref="delayActuator" />
+	</bean>
+-->
+	
 
 </beans>

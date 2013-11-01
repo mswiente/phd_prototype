@@ -35,12 +35,17 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 
 	@Value("${monitor.threshold.low}")
 	private Double lowThreshold;
+	
+	@Value("${monitor.sampleSize}")
+	private int sampleSize;
 
 	private ScheduledExecutorService scheduler;
 	private Future<?> monitoringTask;
 	private PerformanceStatistics statistics;
 	private NotificationPublisher notificationPublisher;
 	private int notificationSeqNum = 0;
+	
+	private Controller controller;
 
 	private class MonitoringTask implements Runnable {
 		
@@ -67,6 +72,9 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 
 	public void addSample(Sample sample) {
 		synchronized (samples) {
+			if (samples.size() > sampleSize) {
+				samples.clear();
+			}
 			this.samples.add(sample);
 		}
 	}
@@ -75,18 +83,20 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 		logState(count);
 		logger.debug("update notifications...");
 		Double currentThroughput = getThroughput();
-		if (currentThroughput <= lowThreshold) {
-			logger.debug("Throughput below lowThreshold: " + currentThroughput
-					+ "(" + lowThreshold + ")");
-			sendNotification(PerformanceNotification.Type.LOW_THRESHOLD_BELOW);
-		} else if (currentThroughput >= highThreshold) {
-			logger.debug("Throughput above highTreshold: " + currentThroughput
-					+ "(" + highThreshold + ")");
-			sendNotification(PerformanceNotification.Type.HIGH_THRESHOLD_EXCEEDED);
-		} else {
-			logger.debug("Throughput within limit: " + currentThroughput + "["
-					+ lowThreshold + ";" + highThreshold + "]");
-		}
+//		if (currentThroughput <= lowThreshold) {
+//			logger.debug("Throughput below lowThreshold: " + currentThroughput
+//					+ "(" + lowThreshold + ")");
+//			sendNotification(PerformanceNotification.Type.LOW_THRESHOLD_BELOW);
+//		} else if (currentThroughput >= highThreshold) {
+//			logger.debug("Throughput above highTreshold: " + currentThroughput
+//					+ "(" + highThreshold + ")");
+//			sendNotification(PerformanceNotification.Type.HIGH_THRESHOLD_EXCEEDED);
+//		} else {
+//			logger.debug("Throughput within limit: " + currentThroughput + "["
+//					+ lowThreshold + ";" + highThreshold + "]");
+//		}
+		
+		controller.setInputValue(currentThroughput, highThreshold, count);
 	}
 
 	private void sendNotification(PerformanceNotification.Type type) {
@@ -103,7 +113,7 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 		Double pLatency = get95PercentageLatency();
 		Double minLatency = getMinimumLatency();
 		Double maxLatency = getMaximumLatency();
-		perf.info(String.format("%d;%d;%s;%s;%s;%s;%s", count, timestamp,
+		perf.info(String.format("MON;%d;%d;%s;%s;%s;%s;%s", count, timestamp,
 				throughput, meanLatency, pLatency, minLatency, maxLatency));
 	}
 
@@ -178,5 +188,9 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 	public void setNotificationPublisher(
 			NotificationPublisher notificationPublisher) {
 		this.notificationPublisher = notificationPublisher;
+	}
+
+	public void setController(Controller controller) {
+		this.controller = controller;
 	}
 }
