@@ -12,8 +12,9 @@ public class ProcessEventPostProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		MessageContentsList msgList = (MessageContentsList)exchange.getIn().getBody();
 		SimpleCDR simpleCDR = (SimpleCDR) msgList.get(0);
-		exchange.getOut().setBody(simpleCDR);
-		exchange.getOut().setHeader("recordId", exchange.getIn().getHeader("recordId", String.class));
+		//exchange.getOut().setBody(simpleCDR);
+		//exchange.getOut().setHeader("recordId", exchange.getIn().getHeader("recordId", String.class));
+		exchange.getIn().setBody(simpleCDR);
 	}
 
 }

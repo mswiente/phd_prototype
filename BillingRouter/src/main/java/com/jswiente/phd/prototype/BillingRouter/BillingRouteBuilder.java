@@ -21,9 +21,8 @@ import org.apache.camel.spring.Main;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.jswiente.phd.prototype.camelutils.LogEndTimeProcessor;
-import com.jswiente.phd.prototype.camelutils.LogStartTimeProcessor;
-import com.jswiente.phd.prototype.utils.LogUtils.Event;
+import com.jswiente.phd.prototype.camelutils.RegisterEndTimeProcessor;
+import com.jswiente.phd.prototype.camelutils.RegisterStartTimeProcessor;
 
 /**
  * Billing Camel Router
@@ -35,6 +34,15 @@ public class BillingRouteBuilder extends RouteBuilder {
 	
 	@Autowired
 	private CostedEventsJpaProcessor costedEventsProcessor;
+	
+	@Autowired
+	private AggregateSizeActuator aggregateSizeActuator;
+	
+	@Autowired
+	private RegisterStartTimeProcessor registerStartTimeProcessor;
+	
+	@Autowired
+	private RegisterEndTimeProcessor registerEndTimeProcessor;
 
 	@Value("${camel.aggregator}")
 	private boolean useAggregator;
@@ -44,6 +52,9 @@ public class BillingRouteBuilder extends RouteBuilder {
 	
 	@Value("${camel.aggregator.completionTimeout}")
 	private long completionTimeout;
+	
+	@Value("${camel.aggregator.completionSizeHeader}")
+	private String completionSizeHeader;
 
 	/**
 	 * A main() so we can easily run these routing rules in our IDE
@@ -56,26 +67,29 @@ public class BillingRouteBuilder extends RouteBuilder {
 	 * Billing camel route
 	 */
 	public void configure() {
-
+		
 		errorHandler(deadLetterChannel("activemq:queue:BILLING.ERRORS"));
-
+		
+		registerEndTimeProcessor.setAggregate(useAggregator);
+		
 		if (useAggregator) {
 			from("activemq:queue:BILLING.USAGE_EVENTS").id("JMS")
-				.process(new LogStartTimeProcessor(Event.PROC_START)).id("LogTimestamp_PROCESSOR")
+				.process(registerStartTimeProcessor).id("LogTimestamp_PROCESSOR")
 				.to("log:com.jswiente.phd?showAll=true&multiline=true").id("LOG")
 				.unmarshal("jaxbContext").id("UNMARSHAL_PROCESSOR")
-				.aggregate(constant(true), new UsageEventsAggrationStrategy()).completionSize(completionSize).completionTimeout(completionTimeout).parallelProcessing().id("AGGREGATE_PROCESSOR")
-				.to("cxf:bean:mediationEndpoint?dataFormat=POJO&defaultOperationName=processEvents").id("MEDIATION_PROCESSOR")
+				.process(aggregateSizeActuator).id("AggregateSizeActuator_PROCESSOR")
+				.aggregate(constant(true), new UsageEventsAggrationStrategy()).completionSize(header(completionSizeHeader)).completionTimeout(completionTimeout).parallelProcessing().id("AGGREGATE_PROCESSOR")
+				.to("cxf:bean:mediationEndpoint?dataFormat=POJO&headerFilterStrategy=#dropAllMessageHeadersStrategy&defaultOperationName=processEvents").id("MEDIATION_PROCESSOR")
 				.to("log:com.jswiente.phd?showAll=true&multiline=true").id("LOG")
 				.process(new ProcessEventsPostProcessor()).id("MEDIATION_RESPONSE_PROCESSOR")
-				.to("cxf:bean:ratingEndpoint?dataFormat=POJO&defaultOperationName=processCallDetails").id("RATING_PROCESSOR")
+				.to("cxf:bean:ratingEndpoint?dataFormat=POJO&headerFilterStrategy=#dropAllMessageHeadersStrategy&defaultOperationName=processCallDetails").id("RATING_PROCESSOR")
 				.process(new ProcessCallDetailsPostProcessor()).id("RATING_RESPONSE_PROCESSOR")
 				.process(costedEventsProcessor).id("JPA_PROCESSOR")
-				.process(new LogEndTimeProcessor(Event.PROC_END, useAggregator)).id("LogTimeStamp_PROCESSOR");
+				.process(registerEndTimeProcessor).id("LogTimeStamp_PROCESSOR");
 
 		} else {
 			from("activemq:queue:BILLING.USAGE_EVENTS").id("JMS")
-				.process(new LogStartTimeProcessor(Event.PROC_START)).id("LogTimestamp_PROCESSOR")
+				.process(registerStartTimeProcessor).id("LogTimestamp_PROCESSOR")
 				.to("log:com.jswiente.phd?showAll=true&multiline=true").id("LOG")
 				.unmarshal("jaxbContext").id("UNMARSHAL_PROCESSOR")
 				.to("cxf:bean:mediationEndpoint?dataFormat=POJO&defaultOperationName=processEvent").id("MEDIATION_PROCESSOR")
@@ -84,7 +98,7 @@ public class BillingRouteBuilder extends RouteBuilder {
 				.to("cxf:bean:ratingEndpoint?dataFormat=POJO&defaultOperationName=processCallDetail").id("RATING_PROCESSOR")
 				.process(new ProcessCallDetailPostProcessor()).id("RATING_RESPONSE_PROCESSOR")
 				.process(costedEventProcessor).id("JPA_PROCESSOR")
-				.process(new LogEndTimeProcessor(Event.PROC_END, useAggregator)).id("LogTimeStamp_PROCESSOR");
+				.process(registerEndTimeProcessor).id("LogTimeStamp_PROCESSOR");
 		}
 
 	}

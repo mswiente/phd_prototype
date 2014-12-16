@@ -18,7 +18,6 @@ public class ExampleSimpleCdrFieldSetMapper implements FieldSetMapper<SimpleCDR>
 	public static final int ENDDATE_COLUMN = 6;
 	public static final int CALLTYPE_COLUMN = 7;
 	
-	@Override
 	public SimpleCDR mapFieldSet(FieldSet fieldSet) throws BindException {
 		
 		SimpleCDR cdr = new SimpleCDR();

@@ -20,9 +20,9 @@ public class RawUsageEventFieldSetMapper implements FieldSetMapper<RawUsageEvent
 	public static final int EVENTTYPE_COLUMN = 7;
 	public static final int FLATEVENT_COLUMN = 8;
 	
-	@Override
 	public RawUsageEvent mapFieldSet(FieldSet fieldSet) throws BindException {
 		
+		long timestamp = System.currentTimeMillis();
 		RawUsageEvent usageEvent = new RawUsageEvent();
 		
 		usageEvent.setRecordId(fieldSet.readLong(RECORD_ID_COLUMN));
@@ -35,7 +35,7 @@ public class RawUsageEventFieldSetMapper implements FieldSetMapper<RawUsageEvent
 		usageEvent.setEventType(EventType.parse(fieldSet.readInt(EVENTTYPE_COLUMN)));
 		usageEvent.setFlatEvent(fieldSet.readBoolean(FLATEVENT_COLUMN));
 		
-		LogUtils.logEvent(LogUtils.Event.PROC_START, usageEvent.getRecordId());
+		LogUtils.logEvent(LogUtils.Event.PROC_START, usageEvent.getRecordId(), timestamp);
 		
 		return usageEvent;
 	}

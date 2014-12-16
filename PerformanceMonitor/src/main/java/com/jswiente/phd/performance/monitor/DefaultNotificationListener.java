@@ -1,4 +1,4 @@
-package com.jswiente.phd.performance;
+package com.jswiente.phd.performance.monitor;
 
 import javax.management.Notification;
 import javax.management.NotificationFilter;
@@ -7,6 +7,9 @@ import javax.management.monitor.MonitorNotification;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.jswiente.phd.performance.actuator.Actuator;
+import com.jswiente.phd.performance.monitor.PerformanceNotification.Type;
 
 public class DefaultNotificationListener implements NotificationListener, NotificationFilter {
 
@@ -17,19 +20,17 @@ public class DefaultNotificationListener implements NotificationListener, Notifi
 	
 	private Actuator actuator;
 	
-	@Override
 	public void handleNotification(Notification notification, Object handback) {
 		
 		logger.debug("Received notification: " + notification.getType());
 		if (notification.getType().equals(PerformanceNotification.Type.HIGH_THRESHOLD_EXCEEDED.toString())) {
-			actuator.onHighThreshold();
+			//actuator.onHighThreshold();
 		}
 		else if (notification.getType().equals(PerformanceNotification.Type.LOW_THRESHOLD_BELOW.toString())) {
-			actuator.onLowThreshold();
+			//actuator.onLowThreshold();
 		}
 	}
 	
-	@Override
 	public boolean isNotificationEnabled(Notification notification) {
 		return MonitorNotification.class.isAssignableFrom(notification.getClass());
 	}

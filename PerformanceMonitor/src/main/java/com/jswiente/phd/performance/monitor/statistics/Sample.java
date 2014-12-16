@@ -1,4 +1,4 @@
-package com.jswiente.phd.performance;
+package com.jswiente.phd.performance.monitor.statistics;
 
 public class Sample {
 	private Long start;

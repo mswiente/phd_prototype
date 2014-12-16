@@ -9,7 +9,6 @@ import com.jswiente.phd.prototype.domain.SimpleCDR;
 
 public class SimpleCdrFieldSetMapper implements FieldSetMapper<SimpleCDR> {
 
-	@Override
 	public SimpleCDR mapFieldSet(FieldSet fieldSet) throws BindException {
 		SimpleCDR cdr = new SimpleCDR();
 		

@@ -1,4 +1,4 @@
-package com.jswiente.phd.performance;
+package com.jswiente.phd.performance.monitor;
 
 import javax.management.Notification;
 import javax.management.ObjectName;

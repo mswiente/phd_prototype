@@ -12,8 +12,9 @@ public class ProcessCallDetailPostProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		MessageContentsList msgList = (MessageContentsList)exchange.getIn().getBody();
 		Costedevent costedEvent = (Costedevent) msgList.get(0);
-		exchange.getOut().setBody(costedEvent);
-		exchange.getOut().setHeader("recordId", exchange.getIn().getHeader("recordId", String.class));
+//		exchange.getOut().setBody(costedEvent);
+//		exchange.getOut().setHeader("recordId", exchange.getIn().getHeader("recordId", String.class));
+		exchange.getIn().setBody(costedEvent);
 	}
 
 }

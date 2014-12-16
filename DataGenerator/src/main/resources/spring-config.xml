@@ -16,8 +16,8 @@
 
 	<context:annotation-config />
 	<context:component-scan base-package="com.jswiente.phd.prototype" />
-	<context:mbean-export/>
-	
+	<context:mbean-export />
+
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
@@ -31,6 +31,9 @@
 	<bean id="dataGenerator" class="com.jswiente.phd.prototype.DataGenerator.DataGenerator">
 		<property name="generator" ref="usageEventGenerator" />
 		<property name="writerFactory" ref="WriterFactory" />
+		<property name="mBeanServerConnection" ref="remoteMbeanServerConnection" />
+		<property name="objectName" value="bean:name=performanceMonitor" />
+		<property name="methodName" value="start" />
 	</bean>
 
 	<!-- A connection to ActiveMQ -->
@@ -62,6 +65,15 @@
 	<bean id="WriterFactory" class="com.jswiente.phd.prototype.DataGenerator.WriterFactory">
 		<lookup-method name="createJMSWriter" bean="JMSWriter" />
 		<lookup-method name="createFileWriter" bean="FileWriter" />
+	</bean>
+
+	<bean
+		class="org.springframework.jmx.support.MBeanServerConnectionFactoryBean"
+		id="remoteMbeanServerConnection">
+		<property name="serviceUrl"
+			value="${datagenerator.jmx.remoteMbeanServer.serviceUrl}">
+		</property>
+		<property name="connectOnStartup" value="false" />
 	</bean>
 
 </beans>

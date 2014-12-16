@@ -9,7 +9,6 @@ public class BatchDataProcessor<T extends Record, S extends Record> implements I
 	
 	private DataProcessor<T,S> dataProcessor;
 
-	@Override
 	public S process(T item) throws Exception {
 		
 		return dataProcessor.process(item);

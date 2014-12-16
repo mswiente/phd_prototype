@@ -7,7 +7,6 @@ import org.apache.camel.spi.InterceptStrategy;
 
 public class LoggingInterceptor implements InterceptStrategy {
 
-	@Override
 	public Processor wrapProcessorInInterceptors(CamelContext context,
 			ProcessorDefinition<?> definition, Processor target,
 			Processor nextTarget) throws Exception {

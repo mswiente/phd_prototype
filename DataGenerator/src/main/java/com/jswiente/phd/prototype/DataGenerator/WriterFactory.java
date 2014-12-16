@@ -17,6 +17,7 @@ public abstract class WriterFactory {
 		switch (config.getWriterType()) {
 			case JMS: {
 				writer = createJMSWriter();
+				break;
 			}
 			default:
 			case FILE: {
