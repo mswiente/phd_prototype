@@ -56,7 +56,7 @@ public class BasicController implements Controller<Double, Double> {
 		this.actuator = actuator;
 	}
 	
-	public void setFilter(Component<Double, Double> integrator) {
+	public void setComponent(Component<Double, Double> integrator) {
 		this.integrator = integrator;
 	}
 

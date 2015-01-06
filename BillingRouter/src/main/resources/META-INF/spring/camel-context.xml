@@ -13,29 +13,41 @@
 <!-- Configures the Camel Context -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
 	<context:component-scan base-package="com.jswiente.phd.prototype.BillingRouter" />
-	<context:load-time-weaver/>
-	
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<context:load-time-weaver />
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
 				<value>classpath:camel.properties</value>
+				<value>classpath:feedbackcontrol.properties</value>
 			</list>
 		</property>
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 	</bean>
 
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter"
+		lazy-init="false">
+		<property name="beans">
+			<map>
+				<entry key="bean:name=performanceMonitor" value-ref="performanceMonitor" />
+			</map>
+		</property>
+	</bean>
+
 	<import resource="classpath:META-INF/spring/camel-cxf.xml" />
 	<import resource="classpath:spring-jpa.xml" />
 
-	<camelContext trace="${camel.tracer}" xmlns="http://camel.apache.org/schema/spring">
+	<camelContext trace="${camel.tracer}"
+		xmlns="http://camel.apache.org/schema/spring">
+		<jmxAgent id="agent" createConnector="true" />
 		<!-- <package>com.jswiente.phd.prototype.BillingRouter</package> -->
 		<routeBuilder ref="billingRoute" />
 		<dataFormats>
@@ -71,11 +83,98 @@
 		<property name="entityManagerFactory" ref="entityManager" />
 		<property name="transactionManager" ref="transactionManager" />
 	</bean>
-	
-	<bean id="billingRoute" class="com.jswiente.phd.prototype.BillingRouter.BillingRouteBuilder" />
-	
-	<bean id="loggingInterceptor" class="com.jswiente.phd.prototype.camelutils.LoggingInterceptor" />
-	
+
+	<bean id="billingRoute"
+		class="com.jswiente.phd.prototype.BillingRouter.BillingRouteBuilder" />
+
+	<bean id="loggingInterceptor"
+		class="com.jswiente.phd.prototype.camelutils.LoggingInterceptor" />
+
 	<bean id="loggingAspect" class="com.jswiente.phd.prototype.BillingRouter.LoggingAspect" />
+
+	<!--Feedback Control configuration -->
+
+	<bean id="performanceMonitor" class="com.jswiente.phd.feedbackcontrol.monitor.PerformanceMonitor"
+		init-method="init">
+		<property name="queueLengthSensor" ref="queueLengthSensor" />
+		<property name="jmxSensor" ref="jmxSensor" />
+		<property name="controller" ref="basicController" />
+		<property name="loadTestController" ref="loadTestController" />
+	</bean>
+
+	<bean id="queueLengthSensor" class="com.jswiente.phd.feedbackcontrol.sensor.JmxSensor">
+		<property name="mBeanServerConnection" ref="remoteMbeanServerConnection" />
+		<property name="objectName"
+			value="${monitor.queueLengthSensor.jmx.objectName}" />
+		<property name="attribute" value="QueueSize" />
+	</bean>
+
+	<bean id="jmxSensor" class="com.jswiente.phd.feedbackcontrol.sensor.JmxSensor">
+		<property name="mBeanServerConnection" ref="localMbeanServer" />
+		<property name="objectName"
+			value="org.apache.camel:context=CE03430/camel-1,type=routes,name=&quot;JMS&quot;" />
+		<property name="attribute" value="InflightExchanges" />
+	</bean>
+	
+	<bean id="jmxActuator" class="com.jswiente.phd.feedbackcontrol.actuator.JmxActuator">
+		<property name="mBeanServerConnection" ref="remoteMBeanServerConnection2" />
+		<property name="objectName"
+			value="com.jswiente.phd.prototype.DataGenerator:name=dataGenerator,type=DataGenerator" />
+		<property name="attributeName" value="ArrivalRate" />
+	</bean>
+
+	<bean id="basicController" class="com.jswiente.phd.feedbackcontrol.controller.BasicController">
+		<property name="strategy" ref="simpleControlStrategy" />
+		<property name="actuator" ref="aggregateSizeActuator" />
+		<property name="component" ref="integrator" />
+	</bean>
+	
+	<bean id="staticTest" class="com.jswiente.phd.feedbackcontrol.controller.TestController" init-method="init">
+		<property name="actuator" ref="aggregateSizeActuator" />
+		<property name="maxValue" value="${statictest.maxValue}" />
+		<property name="steps" value="${statictest.steps}" />
+		<property name="repeats" value="${statictest.repeats}" />
+		<property name="values" value="${statictest.values}" />
+	</bean>
+	
+	<bean id="loadTestController" class="com.jswiente.phd.feedbackcontrol.controller.TestController" init-method="init">
+		<property name="actuator" ref="jmxActuator" />
+		<property name="maxValue" value="${loadtest.maxValue}" />
+		<property name="steps" value="${loadtest.steps}" />
+		<property name="repeats" value="${loadtest.repeats}" />
+		<property name="values" value="${loadtest.values}" />
+	</bean>
+
+	<bean id="pController" class="com.jswiente.phd.feedbackcontrol.controller.PController" />
+
+	<bean id="iController" class="com.jswiente.phd.feedbackcontrol.controller.IController" />
+
+	<bean id="piController" class="com.jswiente.phd.feedbackcontrol.controller.PIController" />
+
+	<bean id="pdContorller" class="com.jswiente.phd.feedbackcontrol.controller.PIDController" />
+
+	<bean id="pidController" class="com.jswiente.phd.feedbackcontrol.controller.PIDController" />
+	
+	<bean id="simpleControlStrategy" class="com.jswiente.phd.feedbackcontrol.controller.SimpleControlStrategy" />
+	
+	<bean id="integrator" class="com.jswiente.phd.feedbackcontrol.component.Integrator" />
+
+	<bean id="remoteMbeanServerConnection" class="org.springframework.jmx.support.MBeanServerConnectionFactoryBean">
+		<property name="serviceUrl"
+			value="${monitor.remoteMbeanServer.serviceUrl}">
+		</property>
+		<property name="connectOnStartup" value="false" />
+	</bean>
+	
+	<bean id="remoteMBeanServerConnection2" class="org.springframework.jmx.support.MBeanServerConnectionFactoryBean">
+		<property name="serviceUrl"
+			value="${monitor.remoteMbeanServer2.serviceUrl}">
+		</property>
+		<property name="connectOnStartup" value="false" />
+	</bean>
+
+	<bean id="localMbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+		<property name="locateExistingServerIfPossible" value="true" />
+	</bean>
 
 </beans>

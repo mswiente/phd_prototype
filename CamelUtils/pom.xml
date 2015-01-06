@@ -20,5 +20,10 @@
 			<scope>compile</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jswiente.phd</groupId>
+			<artifactId>PerformanceMonitor</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>

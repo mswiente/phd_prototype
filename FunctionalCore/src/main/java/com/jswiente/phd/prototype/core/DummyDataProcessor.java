@@ -7,7 +7,6 @@ import com.jswiente.phd.prototype.domain.Record;
 @Service
 public class DummyDataProcessor implements DataProcessor<Record, Record> {
 
-	@Override
 	public Record process(Record input) {
 		
 		try {

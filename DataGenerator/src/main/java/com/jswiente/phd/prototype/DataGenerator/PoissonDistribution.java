@@ -5,12 +5,12 @@ package com.jswiente.phd.prototype.DataGenerator;
  */
 public class PoissonDistribution implements Distribution {
 
-	public long getInterval(double lambda) {
-		return (long)poissonRandomInterarrivalDelay(lambda);
+	public double getInterval(double lambda) {
+		return exponentialRandomInterarrivalDelay(lambda);
 	}
 	
-	private double poissonRandomInterarrivalDelay(double lambda) {
+	private double exponentialRandomInterarrivalDelay(double lambda) {
 	    double u = Math.random();
-		return -Math.log(1.0-u)/lambda;
+		return Math.log(1.0-u)/-lambda;
 	}
 }

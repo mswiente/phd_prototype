@@ -7,7 +7,7 @@ import org.apache.camel.support.EventNotifierSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.jswiente.phd.performance.monitor.PerformanceMonitor;
+import com.jswiente.phd.feedbackcontrol.monitor.PerformanceMonitor;
 
 @Component
 public class CamelContextStartedEventNotifier extends EventNotifierSupport {

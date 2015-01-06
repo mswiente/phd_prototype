@@ -7,9 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-public class JmxSensor {
+public class JmxSensor<T> implements Sensor<T>{
 	
 	private String objectName;
+	private String attribute;
 	
 	private MBeanServerConnection mBeanServerConnection;
 
@@ -50,5 +51,22 @@ public class JmxSensor {
 	@Required
 	public void setObjectName(String objectName) {
 		this.objectName = objectName;
+	}
+	
+	public void setAttribute(String attribute) {
+		this.attribute = attribute;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T getValue() {
+		try {
+			ObjectName objectNameRequest = new ObjectName(objectName);
+			
+			return (T) mBeanServerConnection.getAttribute(objectNameRequest, attribute);
+			
+		} catch (Exception e) {
+			logger.error("Error reading long value", e);
+		}
+		return null;
 	}
 }

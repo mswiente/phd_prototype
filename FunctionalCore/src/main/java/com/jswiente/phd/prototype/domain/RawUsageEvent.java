@@ -114,7 +114,6 @@ public class RawUsageEvent implements Record {
 		this.flatEvent = flatEvent;
 	}
 
-	@Override
 	public long getId() {
 		return recordId;
 	}

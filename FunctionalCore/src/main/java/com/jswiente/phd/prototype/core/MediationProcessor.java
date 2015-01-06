@@ -26,7 +26,6 @@ public class MediationProcessor implements
 	 * com.jswiente.phd.prototype.core.MediationProcessInterface#process(com
 	 * .jswiente.phd.prototype.domain.RawUsageEvent)
 	 */
-	@Override
 	public SimpleCDR process(RawUsageEvent usageEvent) throws Exception {
 
 		Stopwatch stopwatch = Stopwatch.start(LogUtils.Event.MEDIATION_START.toString(), usageEvent.getRecordId());

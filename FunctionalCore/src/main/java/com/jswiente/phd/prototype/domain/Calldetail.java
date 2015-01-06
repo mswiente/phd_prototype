@@ -166,7 +166,6 @@ public class Calldetail implements Record, java.io.Serializable {
 		this.processingDate = processingDate;
 	}
 
-	@Override
 	public long getId() {
 		return recordId;
 	}

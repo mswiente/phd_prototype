@@ -7,13 +7,12 @@ import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.jswiente.phd.feedbackcontrol.monitor.PerformanceMonitor;
+import com.jswiente.phd.feedbackcontrol.monitor.statistics.Sample;
 import com.jswiente.phd.prototype.domain.Costedevent;
 import com.jswiente.phd.prototype.domain.Costedevents;
 import com.jswiente.phd.prototype.utils.LogUtils;
 import com.jswiente.phd.prototype.utils.LogUtils.Event;
-import com.jswiente.phd.performance.monitor.PerformanceMonitor;
-import com.jswiente.phd.performance.monitor.statistics.Sample;
-import com.jswiente.phd.performance.sensor.ThroughputSensor;
 
 @Component
 public class RegisterEndTimeProcessor implements Processor {

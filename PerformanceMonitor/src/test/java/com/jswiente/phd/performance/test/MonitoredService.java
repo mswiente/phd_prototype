@@ -4,12 +4,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.jswiente.phd.performance.PerformanceMonitor;
-import com.jswiente.phd.performance.Sample;
+import com.jswiente.phd.feedbackcontrol.monitor.PerformanceMonitor;
+import com.jswiente.phd.feedbackcontrol.monitor.statistics.Sample;
 
 @ManagedResource
 public class MonitoredService {
@@ -21,15 +23,17 @@ public class MonitoredService {
 	private ExecutorService executorService;
 	private Future<?> task;
 	
+	private static final Logger logger = LoggerFactory
+	.getLogger(MonitoredService.class);
+	
 	public MonitoredService() {
-		this.delay = 1000;
+		this.delay = 0;
 		this.executorService = Executors.newSingleThreadExecutor();
 	}
 	
 	public void start() throws Exception {
 		task = executorService.submit(new Runnable() {
 
-			@Override
 			public void run() {
 				while (true) {
 					Long start = System.currentTimeMillis();

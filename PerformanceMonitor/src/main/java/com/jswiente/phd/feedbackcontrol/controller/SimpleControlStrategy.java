@@ -2,7 +2,7 @@ package com.jswiente.phd.feedbackcontrol.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 
-public class SimpleControllerStrategy implements ControllerStrategy {
+public class SimpleControlStrategy implements ControllerStrategy {
 
 	@Value("${simpleController.period1}")
 	private int period1;

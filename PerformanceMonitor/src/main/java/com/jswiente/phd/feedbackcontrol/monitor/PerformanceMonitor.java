@@ -15,11 +15,11 @@ import org.springframework.jmx.export.notification.NotificationPublisher;
 import org.springframework.jmx.export.notification.NotificationPublisherAware;
 
 import com.jswiente.phd.feedbackcontrol.controller.Controller;
+import com.jswiente.phd.feedbackcontrol.controller.TestController;
 import com.jswiente.phd.feedbackcontrol.monitor.statistics.PerformanceStatistics;
 import com.jswiente.phd.feedbackcontrol.monitor.statistics.PerformanceStatisticsService;
 import com.jswiente.phd.feedbackcontrol.monitor.statistics.Sample;
 import com.jswiente.phd.feedbackcontrol.sensor.JmxSensor;
-import com.jswiente.phd.feedbackcontrol.sensor.QueueLengthSensor;
 
 @ManagedResource
 public class PerformanceMonitor implements NotificationPublisherAware {
@@ -51,9 +51,10 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 	
 	private long lastRunTime;
 
-	private QueueLengthSensor queueLengthSensor;
-	private JmxSensor jmxSensor;
+	private JmxSensor<Long> queueLengthSensor;
+	private JmxSensor<Integer> jmxSensor;
 	private Controller<Double, Double> controller;
+	private TestController loadTestController;
 
 	private class MonitoringTask implements Runnable {
 
@@ -64,9 +65,9 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 				long currentRunTime = System.currentTimeMillis();
 				setStatistics(statisticsService.calculateStatistics(lastRunTime, currentRunTime));
 				Long prevQueueSize = queueSize;
-				queueSize = queueLengthSensor.getQueueSize();
+				queueSize = queueLengthSensor.getValue();
 				queueSizeChange = queueSize - prevQueueSize;
-				inFlightExchanges = jmxSensor.getIntegerAttribute("InflightExchanges");
+				inFlightExchanges = jmxSensor.getValue();
 				updateController(count);
 				logState(count, currentRunTime);
 				count++;
@@ -99,11 +100,14 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 		statisticsService.addSample(sample);
 	}
 
-	//TODO: input for the controller should be configurable...
 	private void updateController(long count) {
-		if (controller == null) return;
+		if (controller != null) {
+			controller.setInputValue(queueSizeChange.doubleValue(), count);
+		}
 		
-		controller.setInputValue(queueSizeChange.doubleValue(), count);
+		if (loadTestController != null) {
+			loadTestController.setInputValue(null, count);
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -117,9 +121,13 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 	private void logState(long count, long timestamp) {
 
 		Double output = null;
+		Double arrivalRate = null;
 		if (controller != null) {
 			
 			output = controller.getOutput();
+		}
+		if (loadTestController != null) {
+			arrivalRate = loadTestController.getOutput();
 		}
 		Double throughput = getThroughput();
 		Double meanLatency = getMeanLatency();
@@ -135,8 +143,8 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 		logger.debug(String.format("InflightExchanges=%s", getInflightExchanges()));
 		
 		if (count <= maxLogCount) {
-			perf.info(String.format("MON;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s", count, timestamp, output,
-					throughput, meanLatency, pLatency, minLatency, maxLatency, getQueueSize(), getQueueSizeChange(), getInflightExchanges()));
+			perf.info(String.format("MON;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s", count, timestamp, output,
+					throughput, meanLatency, pLatency, minLatency, maxLatency, getQueueSize(), getQueueSizeChange(), getInflightExchanges(), arrivalRate));
 		}
 	}
 
@@ -226,12 +234,16 @@ public class PerformanceMonitor implements NotificationPublisherAware {
 	public void setController(Controller<Double, Double> controller) {
 		this.controller = controller;
 	}
+	
+	public void setLoadTestController(TestController controller) {
+		this.loadTestController = controller;
+	}
 
-	public void setQueueLengthSensor(QueueLengthSensor queueLengthSensor) {
+	public void setQueueLengthSensor(JmxSensor<Long> queueLengthSensor) {
 		this.queueLengthSensor = queueLengthSensor;
 	}
 	
-	public void setJmxSensor(JmxSensor jmxSensor) {
+	public void setJmxSensor(JmxSensor<Integer> jmxSensor) {
 		this.jmxSensor = jmxSensor;
 	}
 }

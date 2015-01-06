@@ -115,7 +115,6 @@ public class Account implements Record, java.io.Serializable {
 		this.nextBillDate = nextBillDate;
 	}
 
-	@Override
 	public long getId() {
 		return accountId;
 	}

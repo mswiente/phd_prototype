@@ -95,7 +95,6 @@ public class Customerproducttariff implements Record, java.io.Serializable {
 		this.endDate = endDate;
 	}
 
-	@Override
 	public long getId() {
 		return customerProductTariffId;
 	}

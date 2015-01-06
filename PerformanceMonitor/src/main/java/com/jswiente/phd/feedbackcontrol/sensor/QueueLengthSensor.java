@@ -1,7 +1,8 @@
 package com.jswiente.phd.feedbackcontrol.sensor;
 
 
-public class QueueLengthSensor extends JmxSensor {
+@Deprecated
+public class QueueLengthSensor extends JmxSensor<Long> {
 
 	private String attribute = "QueueSize";
 	
@@ -14,5 +15,4 @@ public class QueueLengthSensor extends JmxSensor {
 
 		return getLongAttribute(attribute);
 	}
-
 }

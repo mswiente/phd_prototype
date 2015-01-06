@@ -31,12 +31,27 @@
 		</encoder>
 	</appender>
 
+	<appender name="MON_FILE" class="ch.qos.logback.core.FileAppender">
+		<file>logs/mon-${bySecond}.log</file>
+		<append>true</append>
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
+			by default -->
+		<encoder>
+			<pattern>%msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
 	<logger name="com.jswiente.phd.prototype" level="DEBUG" />
 	<logger name="org.apache.activemq" level="ERROR" />
-	<logger name="org.apache.camel" level="DEBUG" />
+	<logger name="org.apache.camel" level="ERROR" />
 
 	<logger name="perf" level="INFO" additivity="false">
 		<appender-ref ref="PERF_FILE" />
+	</logger>
+
+	<logger name="mon" level="INFO" additivity="false">
+		<appender-ref ref="MON_FILE" />
 	</logger>
 
 	<root level="DEBUG">

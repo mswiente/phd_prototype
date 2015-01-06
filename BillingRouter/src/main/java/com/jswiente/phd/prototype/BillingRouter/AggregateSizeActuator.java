@@ -8,13 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.jswiente.phd.performance.actuator.Actuator;
+import com.jswiente.phd.feedbackcontrol.actuator.Actuator;
 
 @Component
 public class AggregateSizeActuator implements Processor, Actuator<Double> {
 
 	@Value("${camel.aggregator.completionSize}")
 	private long aggregateSize;
+	
+	@Value("${camel.aggregator.minCompletionSize}")
+	private long minAggregateSize;
 	
 	@Value("${camel.aggregator.completionSizeHeader}")
 	private String completionSizeHeader;
@@ -42,6 +45,9 @@ public class AggregateSizeActuator implements Processor, Actuator<Double> {
 	public void setValue(Double value) {
 		logger.debug("Actuator: Setting aggregateSize to: " + value);
 		long aggregateSize = Math.round(value);
+		if (aggregateSize < minAggregateSize) {
+			aggregateSize = minAggregateSize;
+		}
 		this.setAggregateSize(aggregateSize);
 	}
 

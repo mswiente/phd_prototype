@@ -2,19 +2,13 @@ package com.jswiente.phd.feedbackcontrol.controller;
 
 import java.util.ArrayList;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import com.jswiente.phd.feedbackcontrol.actuator.Actuator;
 
-public class StaticTest implements Controller<Double, Double> {
+public class TestController implements Controller<Double, Double> {
 
-	@Value("${statictest.maxValue}")
 	private Double maxValue;
-	@Value("${statictest.steps}")
 	private int steps = 1;
-	@Value("${statictest.repeats}")
 	private int repeats;
-	@Value("${statictest.values}")
 	private String values;
 	
 	private ArrayList<Double> inputValues = new ArrayList<Double>();
@@ -57,6 +51,22 @@ public class StaticTest implements Controller<Double, Double> {
 
 	public void setActuator(Actuator<Double> actuator) {
 		this.actuator = actuator;
+	}
+
+	public void setMaxValue(Double maxValue) {
+		this.maxValue = maxValue;
+	}
+
+	public void setSteps(int steps) {
+		this.steps = steps;
+	}
+
+	public void setRepeats(int repeats) {
+		this.repeats = repeats;
+	}
+
+	public void setValues(String values) {
+		this.values = values;
 	}
 
 }

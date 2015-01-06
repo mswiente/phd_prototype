@@ -74,33 +74,25 @@ public class DataGenerator {
 		writer.open();
 		try {
 			if (config.isContinuous()) {
-				Integer arrivalRateIdx = 0;
 				
-				for (int i = 0; i < config.getNoOfRecords(); i++) {
+				int i = 0;
+				while (true) {
 					
 					Double arrivalRate;
 					
-					if (config.isLoadTest()) {
-						arrivalRate = testInputValues.get(arrivalRateIdx);
-						logger.info("Curent arrivalRate: " + arrivalRate);
-						
-						if ((i+1) % testRepeats == 0) {
-							if (arrivalRateIdx < testInputValues.size()-1) {
-								arrivalRateIdx++;
-							}
-						}
-						
-					} else {
-						arrivalRate = config.getArrivalRate();
-					}
+					arrivalRate = config.getArrivalRate();
+					logger.info("Curent arrivalRate: " + arrivalRate);
+	
+					Double interval = distribution.getInterval(arrivalRate);
+					//convert to milliseconds
+					interval = interval * 1000.0;
 					
-					long interval = distribution.getInterval(arrivalRate);
-					
-					Thread.sleep(interval*1000);
+					Thread.sleep(interval.longValue());
 					
 					RawUsageEvent record = generator.generate(new Long(i + 1));
 					LogUtils.logEvent(LogUtils.Event.RECORD_GEN, record);
 					writer.writeRecord(record);
+					i++;
 				}
 			}
 			else {
